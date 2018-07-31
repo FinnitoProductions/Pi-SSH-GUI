@@ -27,7 +27,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 
 /**
- * 
+ * Represents the primary window of the app.
  * @author Finn Frankis
  * @version Jul 30, 2018
  */
@@ -51,7 +51,7 @@ public class AppWindow implements KeyListener
     private static File fileTransfer;
     
     /**
-     * Launch the application.
+     * Launches the application.
      * @throws Exception 
      */
     public static void main(String[] args) throws Exception
@@ -71,7 +71,7 @@ public class AppWindow implements KeyListener
 
     /**
      * Creates the application.
-     * @throws JSchException 
+     * @throws Exception if there is a problem in initialization
      */
     public AppWindow() throws Exception
     {
@@ -80,7 +80,6 @@ public class AppWindow implements KeyListener
 
     /**
      * Initialize the contents of the frame.
-     * @throws JSchException 
      */
     private void initialize() throws Exception
     {
@@ -169,34 +168,7 @@ public class AppWindow implements KeyListener
         btnRun.setBounds(578, 482, 141, 35);
         btnRun.setEnabled(false);
         frame.getContentPane().add(btnRun);
-        
-        
-
-        //Process process = Runtime.getRuntime().exec("cd Documents; pscp servotest1.jar pi@192.168.178.63:Desktop");
-        /*System.out.println("OPENING SSH");
-        JSch jsch = new JSch();
-        System.out.println("setting up session");
-        Session session = jsch.getSession(user, ip, port);
-        session.setPassword(password);
-        session.setConfig("StrictHostKeyChecking", "no");
-        session.connect();
-
-        Channel cl = session.openChannel("exec");
-        cl.setOutputStream(System.out);
-        inputStream = new CharInputStream();
-
-        cl.setInputStream(inputStream);
-        ((ChannelExec)cl).setCommand("cd Documents; sudo java -jar servotest2.jar");
-        cl.connect();
-
-        /*System.out.println("OPENING CHANNEL " + System.currentTimeMillis());
-        cl.disconnect();
-        ((ChannelExec)cl).setCommand("");
-        cl.connect();
-        System.out.println("RECONNECTING " + System.currentTimeMillis());*/
-        /*
-        cl.setInputStream(System.in);*/
-
+      
         inputStream = new CharInputStream();
     }
 
@@ -234,43 +206,54 @@ public class AppWindow implements KeyListener
         
     }
     
+    /**
+     * Forms the initial SSH connection with the Pi.
+     */
     private static void connectSSH() throws Exception
     {
-
-        JSch jsch = new JSch();
-        
-        session = jsch.getSession(user, ip, port);
-        session.setPassword(password);
-        session.setConfig("StrictHostKeyChecking", "no");
-        lblSshConnected.setText("Connecting...");
-        lblSshConnected.setForeground(Color.BLUE);
-        session.connect();
-        
-        if (session.isConnected())
+        try
         {
-            lblSshConnected.setText("Pi Connected");
-            lblSshConnected.setForeground(new Color(105, 196, 80));
-            Font f = lblSshConnected.getFont();
-            lblSshConnected.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+            JSch jsch = new JSch();
+            
+            session = jsch.getSession(user, ip, port);
+            session.setPassword(password);
+            session.setConfig("StrictHostKeyChecking", "no");
+            lblSshConnected.setText("Connecting...");
+            lblSshConnected.setForeground(Color.BLUE);
+            session.connect();
+            
+            if (session.isConnected())
+            {
+                lblSshConnected.setText("Pi Connected");
+                lblSshConnected.setForeground(new Color(105, 196, 80));
+                Font f = lblSshConnected.getFont();
+                lblSshConnected.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+            }
+            else
+            {
+                lblSshConnected.setText("Pi Not Connected");
+                lblSshConnected.setForeground(Color.RED);
+                btnDeploy.setEnabled(false);
+                btnRun.setEnabled(false);
+            }
         }
-        else
+        catch (Exception e)
         {
-            lblSshConnected.setText("Pi Not Connected");
-            lblSshConnected.setForeground(Color.RED);
-            btnDeploy.setEnabled(false);
-            btnRun.setEnabled(false);
+            e.printStackTrace();
         }
     }
     
-    private static void transferFile () throws Exception
+    /**
+     * Transfers the actively selected file to the Pi via SFTP.
+     */
+    private static void transferFile () 
     {
         if (session.isConnected())
         {
-            ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
-            sftpChannel.connect();
-    
             try
             {
+                ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
+                sftpChannel.connect();
                 sftpChannel.put(fileTransfer.getAbsolutePath(), fileTransfer.getName());
                 sftpChannel.disconnect();
             }
@@ -281,6 +264,10 @@ public class AppWindow implements KeyListener
         }
     }
     
+    /**
+     * Runs the deployed code on the Pi.
+     * @throws JSchException if the channel link cannot be created
+     */
     private static void runCode () throws JSchException
     {
         if (session.isConnected())

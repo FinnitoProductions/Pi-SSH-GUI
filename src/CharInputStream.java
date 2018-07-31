@@ -16,13 +16,12 @@ public class CharInputStream extends InputStream
     
     public CharInputStream()
     {
-        currentPointer = -1;
         characters = new LinkedList<byte[]>();
     }
     public void addChar (String character)
     {
-        characters.add(character.getBytes());
-        if (currentChar == null || currentPointer > currentChar.length || currentPointer == -1)
+        characters.add((character + System.getProperty("line-separator")).getBytes());
+        if (currentChar == null || currentPointer > currentChar.length)
         {
             currentPointer = 0;
             currentChar = characters.remove();
@@ -36,7 +35,7 @@ public class CharInputStream extends InputStream
     @Override
     public int read() throws IOException
     {
-        if (currentPointer > currentChar.length || currentChar == null) 
+        if (currentPointer == currentChar.length - 1 || currentChar == null) 
         {
             if (!characters.isEmpty())
             {
