@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.net.Socket;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 
@@ -25,13 +26,15 @@ import javax.swing.JLabel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 
 /**
  * Represents the primary window of the app.
  * @author Finn Frankis
  * @version Jul 30, 2018
  */
-public class AppWindow implements KeyListener
+public class AppWindow 
 {
 
     private JFrame frame;
@@ -49,6 +52,8 @@ public class AppWindow implements KeyListener
     private static CharInputStream inputStream;
     
     private static File fileTransfer;
+    
+    private static Socket socket;
     
     /**
      * Launches the application.
@@ -123,12 +128,12 @@ public class AppWindow implements KeyListener
         textField.setBounds(37, 50, 462, 38);
         frame.getContentPane().add(textField);
         textField.setColumns(10);
-        textField.addKeyListener(this);
         
         lblSshConnected = new JLabel("Pi Not Connected");
         lblSshConnected.setFont(new Font("Tahoma", Font.PLAIN, 17));
         lblSshConnected.setForeground(new Color(128, 0, 0));
         lblSshConnected.setBounds(21, 468, 166, 64);
+
         frame.getContentPane().add(lblSshConnected);
         
         btnDeploy = new JButton("Deploy");
@@ -170,42 +175,24 @@ public class AppWindow implements KeyListener
         frame.getContentPane().add(btnRun);
       
         inputStream = new CharInputStream();
+        
+        KeyEventDispatcher keyEventDispatcher = new KeyEventDispatcher() {
+            @Override
+            public boolean dispatchKeyEvent(final KeyEvent e) {
+              if (e.getID() == KeyEvent.KEY_PRESSED) {
+                  if (e.getKeyCode() == KeyEvent.VK_UP)
+                  {
+                      System.out.println("KEY UP");
+                      inputStream.addChar("i");
+                  }
+              }
+              // Pass the KeyEvent to the next KeyEventDispatcher in the chain
+              return false;
+            }
+          };
+          KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
     }
 
-    /**
-    * @param arg0
-    */
-    @Override
-    public void keyPressed(KeyEvent e) 
-    {
-        if (e.getKeyCode() == KeyEvent.VK_UP)
-        {
-            System.out.println("KEY UP");
-            inputStream.addChar("i");
-        }
-        
-    }
-
-    /**
-    * @param arg0
-    */
-    @Override
-    public void keyReleased(KeyEvent arg0)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /**
-    * @param arg0
-    */
-    @Override
-    public void keyTyped(KeyEvent arg0)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
     /**
      * Forms the initial SSH connection with the Pi.
      */
@@ -243,6 +230,18 @@ public class AppWindow implements KeyListener
         }
     }
     
+    private static void formSocket ()
+    {
+        try
+        {
+            socket = new Socket (ip, port);
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
     /**
      * Transfers the actively selected file to the Pi via SFTP.
      */
