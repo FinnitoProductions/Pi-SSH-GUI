@@ -63,14 +63,22 @@ public class AppWindow
     {
         AppWindow window = new AppWindow();
         window.frame.setVisible(true);
-        try
+        
+        while (true)
         {
-            connectSSH();
-        }
-        catch (Exception e)
-        {
-            lblSshConnected.setText("Pi Not Connected");
-            lblSshConnected.setForeground(Color.RED);
+            if (session == null || !session.isConnected())
+            {
+                try
+                {
+                    connectSSH();
+                }
+                catch (Exception e)
+                {
+                    lblSshConnected.setText("Pi Not Connected");
+                    lblSshConnected.setForeground(Color.RED);
+                }
+            }
+            Thread.sleep(1000l);
         }
     }
 
