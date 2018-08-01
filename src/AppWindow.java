@@ -12,6 +12,8 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,9 +23,14 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.jcraft.jsch.*;
 import javax.swing.JFormattedTextField;
@@ -62,6 +69,12 @@ public class AppWindow
     private static Channel clExec;
     
     private static JLabel errorLabel;
+    private JLabel lblKeyBindings;
+    private JTextField upArrowField;
+    private JLabel lblDownArrow;
+    
+    private static String bindingsName = "bindings.json";
+    private JTextField downArrowField;
     /**
      * Launches the application.
      * @throws Exception 
@@ -178,6 +191,70 @@ public class AppWindow
         errorLabel.setBounds(21, 444, 92, 26);
         errorLabel.setForeground(new Color(128, 0, 0));
         frame.getContentPane().add(errorLabel);
+        
+        lblKeyBindings = new JLabel("Key Bindings:");
+        lblKeyBindings.setFont(new Font("Tahoma", Font.PLAIN, 22));
+        lblKeyBindings.setBounds(37, 115, 141, 26);
+        frame.getContentPane().add(lblKeyBindings);
+       
+        
+
+        try
+        {
+            String fileContents = getStringFromFile(bindingsName);
+
+            JSONObject jo = new JSONObject(fileContents);
+        
+            JLabel lblUpArrow = new JLabel("Up:");
+            lblUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
+            lblUpArrow.setBounds(37, 145, 43, 19);
+            frame.getContentPane().add(lblUpArrow);
+            
+            upArrowField = new JTextField();
+            upArrowField.setBounds(121, 142, 43, 19);
+            frame.getContentPane().add(upArrowField);
+            upArrowField.setColumns(2);
+            upArrowField.setText(jo == null ? "" : jo.getString("up"));
+
+            
+            lblDownArrow = new JLabel("Down:");
+            lblDownArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
+            lblDownArrow.setBounds(37, 185, 56, 19);
+            frame.getContentPane().add(lblDownArrow);
+            
+            JButton btnSaveUpArrow = new JButton("Save");
+            btnSaveUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 13));
+            btnSaveUpArrow.setBounds(187, 144, 65, 19);
+            frame.getContentPane().add(btnSaveUpArrow);
+            
+            downArrowField = new JTextField();
+            downArrowField.setText("");
+            downArrowField.setColumns(2);
+            downArrowField.setBounds(178, 182, 43, 19);
+            frame.getContentPane().add(downArrowField);
+            btnSaveUpArrow.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    try
+                    {
+                        jo.put("up", upArrowField.getText());
+                        writeStringToFile(bindingsName, jo.toString());
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
 
         
         KeyEventDispatcher keyEventDispatcher = new KeyEventDispatcher() {
@@ -288,5 +365,30 @@ public class AppWindow
     public JFrame getFrame()
     {
         return frame;
+    }
+    
+    private String getStringFromFile (String fileName) throws Exception
+    {
+        String fileContents = "";
+        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        
+        while (br.ready())
+            fileContents += br.readLine() + System.getProperty("line.separator");
+        return fileContents;
+    }
+    
+    private String setJSONValue (String fileContents, String var, String newVal)
+    {
+        if (!fileContents.contains(var))
+            return "";
+        String oldVal = fileContents.substring(fileContents.indexOf("var") + ("\":".length()));
+        
+        return oldVal;
+    }
+    private void writeStringToFile (String fileName, String newContents) throws Exception
+    {
+        BufferedWriter br = new BufferedWriter (new FileWriter(fileName));
+        br.write(newContents);
+        br.close();
     }
 }
