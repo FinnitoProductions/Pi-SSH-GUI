@@ -88,9 +88,8 @@ public class AppWindow
 
     /**
      * Creates the application.
-     * @throws Exception if there is a problem in initialization
      */
-    public AppWindow() throws Exception
+    public AppWindow()
     {
         initialize();
     }
@@ -98,7 +97,7 @@ public class AppWindow
     /**
      * Initializes the contents of the frame.
      */
-    private void initialize() throws Exception
+    private void initialize()
     {
         frame = new JFrame();
         frame.setBounds(100, 100, 766, 617);
@@ -154,15 +153,7 @@ public class AppWindow
         btnDeploy.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0)
             {
-                try
-                {
-                    transferFile();
-                }
-                catch (Exception e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                transferFile();
             }
         });
         btnDeploy.setBounds(386, 482, 141, 35);
@@ -173,15 +164,7 @@ public class AppWindow
         btnRun.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0)
             {
-                try
-                {
-                    runCode();
-                }
-                catch (JSchException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                runCode();
             }
         });
         btnRun.setBounds(578, 482, 141, 35);
@@ -264,7 +247,7 @@ public class AppWindow
                 sftpChannel.put(fileTransfer.getAbsolutePath(), fileTransfer.getName());
                 sftpChannel.disconnect();
             }
-            catch (Exception e)
+            catch (JSchException | SftpException e)
             {
                 e.printStackTrace();
             }
@@ -273,17 +256,23 @@ public class AppWindow
     
     /**
      * Runs the deployed code on the Pi.
-     * @throws JSchException if the channel link cannot be created
      */
-    private static void runCode () throws JSchException
+    private static void runCode ()
     {
         if (session.isConnected() && fileTransfer != null)
         {
-            clExec = session.openChannel("exec");
-            clExec.setOutputStream(System.out);
-
-            ((ChannelExec)clExec).setCommand("sudo java -jar " + fileTransfer.getName());
-            clExec.connect();
+            try
+            {
+                clExec = session.openChannel("exec");
+                clExec.setOutputStream(System.out);
+    
+                ((ChannelExec)clExec).setCommand("sudo java -jar " + fileTransfer.getName());
+                clExec.connect();
+            }
+            catch (JSchException e)
+            {
+                
+            }
             
         }
     }
