@@ -113,6 +113,8 @@ public class AppWindow
                 fc.setPreferredSize(new Dimension(900, 900));
                 fc.showOpenDialog(null);
                 fileTransfer = fc.getSelectedFile();
+                if (fileTransfer == null)
+                    return;
                 String filePath = fileTransfer.getAbsolutePath();
                 textField.setText("");
                 textField.setText(filePath);
