@@ -7,14 +7,19 @@ import javax.swing.JFileChooser;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
@@ -49,12 +54,12 @@ public class AppWindow
     private static int port = 22;
     
     private static Session session;
-    private static CharInputStream inputStream;
     
     private static File fileTransfer;
     
     private static Socket socket;
     
+    private static Channel clExec;
     /**
      * Launches the application.
      * @throws Exception 
@@ -63,7 +68,6 @@ public class AppWindow
     {
         AppWindow window = new AppWindow();
         window.frame.setVisible(true);
-        
         while (true)
         {
             if (session == null || !session.isConnected())
@@ -105,7 +109,7 @@ public class AppWindow
         btnSelectFile.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 final JFileChooser fc = new JFileChooser();
-                fc.setDialogTitle( "Choose a file to be transferred" );
+                fc.setDialogTitle("Choose a file to be transferred." );
                 fc.setPreferredSize(new Dimension(900, 900));
                 fc.showOpenDialog(null);
                 fileTransfer = fc.getSelectedFile();
@@ -181,19 +185,25 @@ public class AppWindow
         btnRun.setBounds(578, 482, 141, 35);
         btnRun.setEnabled(false);
         frame.getContentPane().add(btnRun);
-      
-        inputStream = new CharInputStream();
+
         
         KeyEventDispatcher keyEventDispatcher = new KeyEventDispatcher() {
             @Override
             public boolean dispatchKeyEvent(final KeyEvent e) {
-              if (e.getID() == KeyEvent.KEY_PRESSED) {
-                  if (e.getKeyCode() == KeyEvent.VK_UP)
-                  {
-                      System.out.println("KEY UP");
-                      inputStream.addChar("i");
-                  }
-              }
+                try
+                {
+                    if (e.getID() == KeyEvent.KEY_PRESSED) {
+                        if (e.getKeyCode() == KeyEvent.VK_UP)
+                        {
+                            System.out.println("KEY UP");
+                            new BufferedWriter(new OutputStreamWriter(clExec.getOutputStream())).write("i");
+                        }
+                    }
+                }
+                catch (IOException ex)
+                {
+                    ex.printStackTrace();
+                }
               // Pass the KeyEvent to the next KeyEventDispatcher in the chain
               return false;
             }
@@ -237,19 +247,7 @@ public class AppWindow
             e.printStackTrace();
         }
     }
-    
-    private static void formSocket ()
-    {
-        try
-        {
-            socket = new Socket (ip, port);
-        }
-        catch (IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+
     /**
      * Transfers the actively selected file to the Pi via SFTP.
      */
@@ -279,12 +277,12 @@ public class AppWindow
     {
         if (session.isConnected())
         {
-            Channel cl = session.openChannel("exec");
-            cl.setOutputStream(System.out);
-    
-            cl.setInputStream(inputStream);
-            ((ChannelExec)cl).setCommand("sudo java -jar " + fileTransfer.getName());
-            cl.connect();
+            clExec = session.openChannel("exec");
+            clExec.setOutputStream(System.out);
+
+            ((ChannelExec)clExec).setCommand("sudo java -jar " + fileTransfer.getName());
+            clExec.connect();
+            
         }
     }
 }
