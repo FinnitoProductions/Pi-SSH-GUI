@@ -43,7 +43,7 @@ public class AppWindow
 {
 
     private JFrame frame;
-    private JTextField textField;
+    private JTextField fileTextField;
     private static JLabel lblSshConnected;
     private static JButton btnDeploy;
     private static JButton btnRun;
@@ -60,6 +60,8 @@ public class AppWindow
     private static Socket socket;
     
     private static Channel clExec;
+    
+    private static JLabel errorLabel;
     /**
      * Launches the application.
      * @throws Exception 
@@ -67,7 +69,8 @@ public class AppWindow
     public static void main(String[] args) throws Exception
     {
         AppWindow window = new AppWindow();
-        window.frame.setVisible(true);
+
+        window.getFrame().setVisible(true);
         while (true)
         {
             if (session == null || !session.isConnected())
@@ -115,8 +118,8 @@ public class AppWindow
                 if (fileTransfer == null)
                     return;
                 String filePath = fileTransfer.getAbsolutePath();
-                textField.setText("");
-                textField.setText(filePath);
+                fileTextField.setText("");
+                fileTextField.setText(filePath);
                 if (filePath != null && filePath.length() > 0 && session.isConnected())
                 {
                     String fileName = fc.getSelectedFile().getName();
@@ -137,10 +140,10 @@ public class AppWindow
         btnSelectFile.setBounds(532, 50, 187, 32);
         frame.getContentPane().add(btnSelectFile);
         
-        textField = new JTextField();
-        textField.setBounds(37, 50, 462, 38);
-        frame.getContentPane().add(textField);
-        textField.setColumns(10);
+        fileTextField = new JTextField();
+        fileTextField.setBounds(37, 50, 462, 38);
+        frame.getContentPane().add(fileTextField);
+        fileTextField.setColumns(10);
         
         lblSshConnected = new JLabel("Pi Not Connected");
         lblSshConnected.setFont(new Font("Tahoma", Font.PLAIN, 17));
@@ -170,6 +173,11 @@ public class AppWindow
         btnRun.setBounds(578, 482, 141, 35);
         btnRun.setEnabled(false);
         frame.getContentPane().add(btnRun);
+        
+        errorLabel = new JLabel("");
+        errorLabel.setBounds(21, 444, 92, 26);
+        errorLabel.setForeground(new Color(128, 0, 0));
+        frame.getContentPane().add(errorLabel);
 
         
         KeyEventDispatcher keyEventDispatcher = new KeyEventDispatcher() {
@@ -177,17 +185,21 @@ public class AppWindow
             public boolean dispatchKeyEvent(final KeyEvent e) {
                 try
                 {
-                    if (e.getID() == KeyEvent.KEY_PRESSED) {
-                        if (e.getKeyCode() == KeyEvent.VK_UP)
-                        {
-                            System.out.println("KEY UP");
-                            new BufferedWriter(new OutputStreamWriter(clExec.getOutputStream())).write("i");
+                    if (session.isConnected() && clExec.isConnected())
+                    {
+                        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(clExec.getOutputStream()));
+                        if (e.getID() == KeyEvent.KEY_PRESSED) {
+                            if (e.getKeyCode() == KeyEvent.VK_UP)
+                            {
+                                System.out.println("KEY UP");
+                                bw.write("i");
+                            }
                         }
                     }
                 }
                 catch (IOException ex)
                 {
-                    ex.printStackTrace();
+                    errorLabel.setText("ERROR: Key Press Failed.");
                 }
               // Pass the KeyEvent to the next KeyEventDispatcher in the chain
               return false;
@@ -219,17 +231,13 @@ public class AppWindow
                 Font f = lblSshConnected.getFont();
                 lblSshConnected.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
             }
-            else
-            {
-                lblSshConnected.setText("Pi Not Connected");
-                lblSshConnected.setForeground(Color.RED);
-                btnDeploy.setEnabled(false);
-                btnRun.setEnabled(false);
-            }
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            lblSshConnected.setText("Pi Not Connected");
+            lblSshConnected.setForeground(Color.RED);
+            btnDeploy.setEnabled(false);
+            btnRun.setEnabled(false);
         }
     }
 
@@ -249,7 +257,7 @@ public class AppWindow
             }
             catch (JSchException | SftpException e)
             {
-                e.printStackTrace();
+                errorLabel.setText("ERROR: File could not be transferred.");
             }
         }
     }
@@ -271,9 +279,14 @@ public class AppWindow
             }
             catch (JSchException e)
             {
-                
+                errorLabel.setText("ERROR: Code could not be run.");
             }
             
         }
+    }
+    
+    public JFrame getFrame()
+    {
+        return frame;
     }
 }
