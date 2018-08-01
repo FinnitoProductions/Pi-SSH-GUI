@@ -72,6 +72,8 @@ public class AppWindow
     private JLabel lblKeyBindings;
     private JTextField upArrowField;
     private JLabel lblDownArrow;
+    private JLabel lblLeftArrow;
+    private JLabel lblRightArrow;
     
     private static final String srcBindingsName = "/bindings.json";
     private static final String userHome = System.getProperty("user.home") + File.separator;
@@ -79,6 +81,8 @@ public class AppWindow
     private static final String absoluteDirName = userHome + dirName;
     private static final String absoluteBindingsName = absoluteDirName + File.separator + "bindings.json";
     private JTextField downArrowField;
+    private JTextField leftArrowField;
+    private JTextField rightArrowField;
     
     private JSONObject jo;
     /**
@@ -213,8 +217,8 @@ public class AppWindow
         frame.getContentPane().add(errorLabel);
         
         lblKeyBindings = new JLabel("Key Bindings:");
-        lblKeyBindings.setFont(new Font("Tahoma", Font.PLAIN, 22));
-        lblKeyBindings.setBounds(37, 115, 141, 26);
+        lblKeyBindings.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        lblKeyBindings.setBounds(37, 109, 157, 26);
         frame.getContentPane().add(lblKeyBindings);
        
 
@@ -232,11 +236,11 @@ public class AppWindow
         }
             JLabel lblUpArrow = new JLabel("Up:");
             lblUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
-            lblUpArrow.setBounds(37, 145, 26, 19);
+            lblUpArrow.setBounds(37, 148, 26, 19);
             frame.getContentPane().add(lblUpArrow);
             
             upArrowField = new JTextField();
-            upArrowField.setBounds(70, 145, 43, 19);
+            upArrowField.setBounds(102, 148, 43, 19);
             frame.getContentPane().add(upArrowField);
             upArrowField.setColumns(2);
             try
@@ -250,22 +254,9 @@ public class AppWindow
             }
 
             JButton btnSaveUpArrow = new JButton("Save");
-            btnSaveUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 8));
-            btnSaveUpArrow.setBounds(120, 145, 49, 19);
+            btnSaveUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
+            btnSaveUpArrow.setBounds(187, 148, 61, 19);
             frame.getContentPane().add(btnSaveUpArrow);
-            
-            lblDownArrow = new JLabel("Down:");
-            lblDownArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
-            lblDownArrow.setBounds(37, 185, 56, 19);
-            frame.getContentPane().add(lblDownArrow);
-            
-;
-            
-            downArrowField = new JTextField();
-            downArrowField.setText("");
-            downArrowField.setColumns(2);
-            downArrowField.setBounds(178, 182, 43, 19);
-            frame.getContentPane().add(downArrowField);
             btnSaveUpArrow.addActionListener(new ActionListener() {
 
                 @Override
@@ -283,6 +274,112 @@ public class AppWindow
                 }
                 
             });
+            
+            lblDownArrow = new JLabel("Down:");
+            lblDownArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
+            lblDownArrow.setBounds(37, 185, 56, 19);
+            frame.getContentPane().add(lblDownArrow);
+
+            
+            downArrowField = new JTextField();
+            downArrowField.setText("");
+            downArrowField.setColumns(2);
+            downArrowField.setBounds(102, 185, 43, 19);
+            frame.getContentPane().add(downArrowField);
+            
+            JButton btnSaveDownArrow = new JButton("Save");
+            btnSaveDownArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
+            btnSaveDownArrow.setBounds(187, 185, 61, 19);
+            frame.getContentPane().add(btnSaveDownArrow);
+
+            btnSaveDownArrow.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    try
+                    {
+                        jo.put("down", downArrowField.getText());
+                        writeStringToFile(absoluteBindingsName, jo.toString());
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                
+            });
+            
+            lblLeftArrow = new JLabel("Left:");
+            lblLeftArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
+            lblLeftArrow.setBounds(37, 222, 56, 19);
+            frame.getContentPane().add(lblLeftArrow);
+
+            
+            leftArrowField = new JTextField();
+            leftArrowField.setText("");
+            leftArrowField.setColumns(2);
+            leftArrowField.setBounds(102, 222, 43, 19);
+            frame.getContentPane().add(leftArrowField);
+            
+            JButton btnSaveLeftArrow = new JButton("Save");
+            btnSaveLeftArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
+            btnSaveLeftArrow.setBounds(187, 222, 61, 19);
+            frame.getContentPane().add(btnSaveLeftArrow);
+
+            btnSaveLeftArrow.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    try
+                    {
+                        jo.put("left", leftArrowField.getText());
+                        writeStringToFile(absoluteBindingsName, jo.toString());
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                
+            });
+            
+            lblRightArrow = new JLabel("Right:");
+            lblRightArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
+            lblRightArrow.setBounds(37, 259, 56, 19);
+            frame.getContentPane().add(lblRightArrow);
+
+            
+            rightArrowField = new JTextField();
+            rightArrowField.setText("");
+            rightArrowField.setColumns(2);
+            rightArrowField.setBounds(102, 259, 43, 19);
+            frame.getContentPane().add(rightArrowField);
+            
+            JButton btnSaveRightArrow = new JButton("Save");
+            btnSaveRightArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
+            btnSaveRightArrow.setBounds(187, 259, 61, 19);
+            frame.getContentPane().add(btnSaveRightArrow);
+
+            btnSaveRightArrow.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    try
+                    {
+                        jo.put("right", rightArrowField.getText());
+                        writeStringToFile(absoluteBindingsName, jo.toString());
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                
+            });
+
     
 
         
