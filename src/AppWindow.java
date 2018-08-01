@@ -96,7 +96,7 @@ public class AppWindow
     }
 
     /**
-     * Initialize the contents of the frame.
+     * Initializes the contents of the frame.
      */
     private void initialize() throws Exception
     {
@@ -255,7 +255,7 @@ public class AppWindow
      */
     private static void transferFile () 
     {
-        if (session.isConnected())
+        if (session.isConnected() && fileTransfer != null)
         {
             try
             {
@@ -277,7 +277,7 @@ public class AppWindow
      */
     private static void runCode () throws JSchException
     {
-        if (session.isConnected())
+        if (session.isConnected() && fileTransfer != null)
         {
             clExec = session.openChannel("exec");
             clExec.setOutputStream(System.out);
