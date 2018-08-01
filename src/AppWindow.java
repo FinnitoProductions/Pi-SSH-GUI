@@ -73,8 +73,14 @@ public class AppWindow
     private JTextField upArrowField;
     private JLabel lblDownArrow;
     
-    private static String bindingsName = "bindings.json";
+    private static final String srcBindingsName = "/bindings.json";
+    private static final String userHome = System.getProperty("user.home") + File.separator;
+    private static final String dirName = "pi-ssh-app";
+    private static final String absoluteDirName = userHome + dirName;
+    private static final String absoluteBindingsName = absoluteDirName + File.separator + "bindings.json";
     private JTextField downArrowField;
+    
+    private JSONObject jo;
     /**
      * Launches the application.
      * @throws Exception 
@@ -115,6 +121,20 @@ public class AppWindow
      */
     private void initialize()
     {
+        new File(absoluteDirName).mkdir();
+        try
+        {
+            File json = new File(absoluteBindingsName);
+            boolean newFile = json.createNewFile();
+ 
+            if (newFile)
+                writeStringToFile(absoluteBindingsName, getStringFromLocalFile(srcBindingsName));
+        }
+        catch (Exception e2)
+        {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
         frame = new JFrame();
         frame.setBounds(100, 100, 766, 617);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -197,35 +217,49 @@ public class AppWindow
         lblKeyBindings.setBounds(37, 115, 141, 26);
         frame.getContentPane().add(lblKeyBindings);
        
-        
 
         try
         {
-            String fileContents = getStringFromFile(bindingsName);
-
-            JSONObject jo = new JSONObject(fileContents);
+            String fileContents = getStringFromExternalFile(absoluteBindingsName);
+            
+            jo = new JSONObject(fileContents);
         
+        }
+        catch (Exception e)
+        {
+            errorLabel.setText(e.getMessage());
+            e.printStackTrace();
+        }
             JLabel lblUpArrow = new JLabel("Up:");
             lblUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
-            lblUpArrow.setBounds(37, 145, 43, 19);
+            lblUpArrow.setBounds(37, 145, 26, 19);
             frame.getContentPane().add(lblUpArrow);
             
             upArrowField = new JTextField();
-            upArrowField.setBounds(121, 142, 43, 19);
+            upArrowField.setBounds(70, 145, 43, 19);
             frame.getContentPane().add(upArrowField);
             upArrowField.setColumns(2);
-            upArrowField.setText(jo == null ? "" : jo.getString("up"));
+            try
+            {
+                upArrowField.setText(jo == null ? "" : jo.getString("up"));
+            }
+            catch (JSONException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
 
+            JButton btnSaveUpArrow = new JButton("Save");
+            btnSaveUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 8));
+            btnSaveUpArrow.setBounds(120, 145, 49, 19);
+            frame.getContentPane().add(btnSaveUpArrow);
             
             lblDownArrow = new JLabel("Down:");
             lblDownArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
             lblDownArrow.setBounds(37, 185, 56, 19);
             frame.getContentPane().add(lblDownArrow);
             
-            JButton btnSaveUpArrow = new JButton("Save");
-            btnSaveUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 13));
-            btnSaveUpArrow.setBounds(187, 144, 65, 19);
-            frame.getContentPane().add(btnSaveUpArrow);
+;
             
             downArrowField = new JTextField();
             downArrowField.setText("");
@@ -240,7 +274,7 @@ public class AppWindow
                     try
                     {
                         jo.put("up", upArrowField.getText());
-                        writeStringToFile(bindingsName, jo.toString());
+                        writeStringToFile(absoluteBindingsName, jo.toString());
                     }
                     catch (Exception e)
                     {
@@ -249,12 +283,7 @@ public class AppWindow
                 }
                 
             });
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
+    
 
         
         KeyEventDispatcher keyEventDispatcher = new KeyEventDispatcher() {
@@ -367,13 +396,27 @@ public class AppWindow
         return frame;
     }
     
-    private String getStringFromFile (String fileName) throws Exception
+    private String getStringFromExternalFile (String fileName) throws Exception
     {
         String fileContents = "";
+
         BufferedReader br = new BufferedReader(new FileReader(fileName));
-        
+
         while (br.ready())
             fileContents += br.readLine() + System.getProperty("line.separator");
+        System.out.println(fileContents);
+        return fileContents;
+    }
+
+    private String getStringFromLocalFile (String fileName) throws Exception
+    {
+        String fileContents = "";
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(srcBindingsName)));
+
+        while (br.ready())
+            fileContents += br.readLine() + System.getProperty("line.separator");
+        System.out.println(fileContents);
         return fileContents;
     }
     
