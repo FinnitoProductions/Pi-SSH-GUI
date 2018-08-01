@@ -69,7 +69,7 @@ public class AppWindow
     public static void main(String[] args) throws Exception
     {
         AppWindow window = new AppWindow();
-
+        window.getFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getFrame().setVisible(true);
         while (true)
         {
