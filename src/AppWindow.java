@@ -49,7 +49,10 @@ import java.awt.KeyboardFocusManager;
 public class AppWindow 
 {
 
-    private JFrame frame;
+    private JFrame mainFrame;
+    private JFrame backgroundFrame;
+    private JFrame setupFrame;
+    
     private JTextField fileTextField;
     private static JLabel lblSshConnected;
     private static JButton btnDeploy;
@@ -85,6 +88,12 @@ public class AppWindow
     private JTextField rightArrowField;
     
     private JSONObject jo;
+    
+    private String upKey = "up";
+    private String downKey = "down";
+    private String leftKey = "left";
+    private String rightKey = "right";
+    
     /**
      * Launches the application.
      * @throws Exception 
@@ -92,8 +101,10 @@ public class AppWindow
     public static void main(String[] args) throws Exception
     {
         AppWindow window = new AppWindow();
-        window.getFrame().setTitle("Raspberry Pi SSH Deploy");
-        window.getFrame().setVisible(true);
+        window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
+        window.getMainFrame().getContentPane().setBackground(Color.BLACK);
+        window.getMainFrame().setVisible(true);
+
         while (true)
         {
             if (session == null || !session.isConnected())
@@ -139,12 +150,17 @@ public class AppWindow
             // TODO Auto-generated catch block
             e2.printStackTrace();
         }
-        frame = new JFrame();
-        frame.setBounds(100, 100, 766, 617);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().setLayout(null);
+        mainFrame = new JFrame();
+        mainFrame.getContentPane().setFont(new Font("Tahoma", Font.PLAIN, 23));
+        mainFrame.setBounds(100, 100, 766, 600); // 550 for exporting
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.getContentPane().setLayout(null);
         
         JButton btnSelectFile = new JButton("Select File");
+        btnSelectFile.setBackground(Color.RED);
+        btnSelectFile.setForeground(Color.ORANGE);
+        Font f = btnSelectFile.getFont();
+        btnSelectFile.setFont(new Font("Tahoma", Font.PLAIN, 19));
         btnSelectFile.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 final JFileChooser fc = new JFileChooser();
@@ -174,20 +190,20 @@ public class AppWindow
                         
             }
         });
-        btnSelectFile.setBounds(532, 50, 187, 32);
-        frame.getContentPane().add(btnSelectFile);
+        btnSelectFile.setBounds(532, 50, 187, 38);
+        mainFrame.getContentPane().add(btnSelectFile);
         
         fileTextField = new JTextField();
-        fileTextField.setBounds(37, 50, 462, 38);
-        frame.getContentPane().add(fileTextField);
+        fileTextField.setBounds(102, 50, 397, 38);
+        mainFrame.getContentPane().add(fileTextField);
         fileTextField.setColumns(10);
         
         lblSshConnected = new JLabel("Pi Not Connected");
         lblSshConnected.setFont(new Font("Tahoma", Font.PLAIN, 17));
-        lblSshConnected.setForeground(new Color(128, 0, 0));
+        lblSshConnected.setForeground(Color.RED);
         lblSshConnected.setBounds(21, 468, 166, 64);
 
-        frame.getContentPane().add(lblSshConnected);
+        mainFrame.getContentPane().add(lblSshConnected);
         
         btnDeploy = new JButton("Deploy");
         btnDeploy.addActionListener(new ActionListener() {
@@ -198,7 +214,7 @@ public class AppWindow
         });
         btnDeploy.setBounds(386, 482, 141, 35);
         btnDeploy.setEnabled(false);
-        frame.getContentPane().add(btnDeploy);
+        mainFrame.getContentPane().add(btnDeploy);
         
         btnRun = new JButton("Run");
         btnRun.addActionListener(new ActionListener() {
@@ -209,17 +225,18 @@ public class AppWindow
         });
         btnRun.setBounds(578, 482, 141, 35);
         btnRun.setEnabled(false);
-        frame.getContentPane().add(btnRun);
+        mainFrame.getContentPane().add(btnRun);
         
         errorLabel = new JLabel("");
         errorLabel.setBounds(21, 444, 92, 26);
         errorLabel.setForeground(new Color(128, 0, 0));
-        frame.getContentPane().add(errorLabel);
+        mainFrame.getContentPane().add(errorLabel);
         
         lblKeyBindings = new JLabel("Key Bindings:");
+        lblKeyBindings.setForeground(Color.ORANGE);
         lblKeyBindings.setFont(new Font("Tahoma", Font.PLAIN, 24));
-        lblKeyBindings.setBounds(37, 109, 157, 26);
-        frame.getContentPane().add(lblKeyBindings);
+        lblKeyBindings.setBounds(153, 109, 157, 32);
+        mainFrame.getContentPane().add(lblKeyBindings);
        
 
         try
@@ -235,17 +252,18 @@ public class AppWindow
             e.printStackTrace();
         }
             JLabel lblUpArrow = new JLabel("Up:");
+            lblUpArrow.setForeground(Color.ORANGE);
             lblUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
-            lblUpArrow.setBounds(37, 148, 26, 19);
-            frame.getContentPane().add(lblUpArrow);
+            lblUpArrow.setBounds(143, 151, 26, 19);
+            mainFrame.getContentPane().add(lblUpArrow);
             
             upArrowField = new JTextField();
-            upArrowField.setBounds(102, 148, 43, 19);
-            frame.getContentPane().add(upArrowField);
+            upArrowField.setBounds(182, 148, 43, 19);
+            mainFrame.getContentPane().add(upArrowField);
             upArrowField.setColumns(2);
             try
             {
-                upArrowField.setText(jo == null ? "" : jo.getString("up"));
+                upArrowField.setText(jo == null ? "" : jo.getString(upKey));
             }
             catch (JSONException e1)
             {
@@ -255,8 +273,8 @@ public class AppWindow
 
             JButton btnSaveUpArrow = new JButton("Save");
             btnSaveUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
-            btnSaveUpArrow.setBounds(187, 148, 61, 19);
-            frame.getContentPane().add(btnSaveUpArrow);
+            btnSaveUpArrow.setBounds(236, 150, 61, 19);
+            mainFrame.getContentPane().add(btnSaveUpArrow);
             btnSaveUpArrow.addActionListener(new ActionListener() {
 
                 @Override
@@ -264,7 +282,7 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put("up", upArrowField.getText());
+                        jo.put(upKey, upArrowField.getText());
                         writeStringToFile(absoluteBindingsName, jo.toString());
                     }
                     catch (Exception e)
@@ -276,21 +294,31 @@ public class AppWindow
             });
             
             lblDownArrow = new JLabel("Down:");
+            lblDownArrow.setForeground(Color.ORANGE);
             lblDownArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
             lblDownArrow.setBounds(37, 185, 56, 19);
-            frame.getContentPane().add(lblDownArrow);
-
+            mainFrame.getContentPane().add(lblDownArrow);
+            
             
             downArrowField = new JTextField();
-            downArrowField.setText("");
+            try
+            {
+                downArrowField.setText(jo == null ? "" : jo.getString(downKey));
+            }
+            catch (JSONException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            
             downArrowField.setColumns(2);
             downArrowField.setBounds(102, 185, 43, 19);
-            frame.getContentPane().add(downArrowField);
+            mainFrame.getContentPane().add(downArrowField);
             
             JButton btnSaveDownArrow = new JButton("Save");
             btnSaveDownArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
             btnSaveDownArrow.setBounds(187, 185, 61, 19);
-            frame.getContentPane().add(btnSaveDownArrow);
+            mainFrame.getContentPane().add(btnSaveDownArrow);
 
             btnSaveDownArrow.addActionListener(new ActionListener() {
 
@@ -299,7 +327,7 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put("down", downArrowField.getText());
+                        jo.put(downKey, downArrowField.getText());
                         writeStringToFile(absoluteBindingsName, jo.toString());
                     }
                     catch (Exception e)
@@ -311,21 +339,30 @@ public class AppWindow
             });
             
             lblLeftArrow = new JLabel("Left:");
+            lblLeftArrow.setForeground(Color.ORANGE);
             lblLeftArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
             lblLeftArrow.setBounds(37, 222, 56, 19);
-            frame.getContentPane().add(lblLeftArrow);
+            mainFrame.getContentPane().add(lblLeftArrow);
 
             
             leftArrowField = new JTextField();
-            leftArrowField.setText("");
+            try
+            {
+                leftArrowField.setText(jo == null ? "" : jo.getString(leftKey));
+            }
+            catch (JSONException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
             leftArrowField.setColumns(2);
             leftArrowField.setBounds(102, 222, 43, 19);
-            frame.getContentPane().add(leftArrowField);
+            mainFrame.getContentPane().add(leftArrowField);
             
             JButton btnSaveLeftArrow = new JButton("Save");
             btnSaveLeftArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
             btnSaveLeftArrow.setBounds(187, 222, 61, 19);
-            frame.getContentPane().add(btnSaveLeftArrow);
+            mainFrame.getContentPane().add(btnSaveLeftArrow);
 
             btnSaveLeftArrow.addActionListener(new ActionListener() {
 
@@ -334,7 +371,7 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put("left", leftArrowField.getText());
+                        jo.put(leftKey, leftArrowField.getText());
                         writeStringToFile(absoluteBindingsName, jo.toString());
                     }
                     catch (Exception e)
@@ -345,22 +382,32 @@ public class AppWindow
                 
             });
             
+
             lblRightArrow = new JLabel("Right:");
+            lblRightArrow.setForeground(Color.ORANGE);
             lblRightArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
             lblRightArrow.setBounds(37, 259, 56, 19);
-            frame.getContentPane().add(lblRightArrow);
+            mainFrame.getContentPane().add(lblRightArrow);
 
             
             rightArrowField = new JTextField();
-            rightArrowField.setText("");
+            try
+            {
+                rightArrowField.setText(jo == null ? "" : jo.getString(rightKey));
+            }
+            catch (JSONException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
             rightArrowField.setColumns(2);
             rightArrowField.setBounds(102, 259, 43, 19);
-            frame.getContentPane().add(rightArrowField);
+            mainFrame.getContentPane().add(rightArrowField);
             
             JButton btnSaveRightArrow = new JButton("Save");
             btnSaveRightArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
             btnSaveRightArrow.setBounds(187, 259, 61, 19);
-            frame.getContentPane().add(btnSaveRightArrow);
+            mainFrame.getContentPane().add(btnSaveRightArrow);
 
             btnSaveRightArrow.addActionListener(new ActionListener() {
 
@@ -369,7 +416,7 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put("right", rightArrowField.getText());
+                        jo.put(rightKey, rightArrowField.getText());
                         writeStringToFile(absoluteBindingsName, jo.toString());
                     }
                     catch (Exception e)
@@ -488,9 +535,9 @@ public class AppWindow
         }
     }
     
-    public JFrame getFrame()
+    public JFrame getMainFrame()
     {
-        return frame;
+        return mainFrame;
     }
     
     private String getStringFromExternalFile (String fileName) throws Exception
