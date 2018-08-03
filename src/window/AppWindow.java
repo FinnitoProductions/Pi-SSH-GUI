@@ -1,3 +1,4 @@
+package window;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -33,6 +34,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.jcraft.jsch.*;
+
+import util.Constants;
+import util.SSHUtil;
+
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import java.awt.Color;
@@ -54,19 +59,19 @@ public class AppWindow
     private JFrame setupFrame; 
     
     private JTextField fileTextField;
-    private static JLabel lblSshConnected;
-    private static JButton btnDeploy;
-    private static JButton btnRun;
+    private JLabel lblSshConnected;
+    private JButton btnDeploy;
+    private JButton btnRun;
 
-    private static Session session;
+    private Session session;
     
-    private static File fileTransfer;
+    private File fileTransfer;
     
-    private static Socket socket;
+    private Socket socket;
     
-    private static Channel clExec;
+    private Channel clExec;
     
-    private static JLabel errorLabel;
+    private JLabel errorLabel;
     private JLabel lblKeyBindings;
     private JTextField upArrowField;
     private JLabel lblDownArrow;
@@ -100,16 +105,16 @@ public class AppWindow
 
         while (true)
         {
-            if (getSession() == null || !getSession().isConnected())
+            if (window.getSession() == null || !window.getSession().isConnected())
             {
                 try
                 {
-                    connectSSH();
+                    SSHUtil.connectSSH();
                 }
                 catch (Exception e)
                 {
-                    getLblSshConnected().setText("Pi Not Connected");
-                    getLblSshConnected().setForeground(Color.RED);
+                    window.getLblSshConnected().setText("Pi Not Connected");
+                    window.getLblSshConnected().setForeground(Color.RED);
                 }
             }
             Thread.sleep(1000l);
@@ -210,7 +215,7 @@ public class AppWindow
         getBtnDeploy().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0)
             {
-                transferFile();
+                SSHUtil.transferFile(getSession(), fileTransfer);
             }
         });
         getBtnDeploy().setBounds(386, 482, 141, 35);
@@ -221,7 +226,7 @@ public class AppWindow
         getBtnRun().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0)
             {
-                runCode();
+                SSHUtil.runCode(getSession(), fileTransfer);
             }
         });
         getBtnRun().setBounds(578, 482, 141, 35);
@@ -459,82 +464,7 @@ public class AppWindow
           KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
     }
 
-    /**
-     * Forms the initial SSH connection with the Pi.
-     */
-    private static void connectSSH() throws Exception
-    {
-        try
-        {
-            JSch jsch = new JSch();
-            
-            setSession(jsch.getSession(Constants.PI_USER, Constants.PI_IP, Constants.PI_PORT));
-            getSession().setPassword(Constants.PI_PASSWORD);
-            getSession().setConfig("StrictHostKeyChecking", "no");
-            getLblSshConnected().setText("Connecting...");
-            getLblSshConnected().setForeground(Color.BLUE);
-            getSession().connect();
-            
-            if (getSession().isConnected())
-            {
-                getLblSshConnected().setText("Pi Connected");
-                getLblSshConnected().setForeground(new Color(105, 196, 80));
-                Font f = getLblSshConnected().getFont();
-                getLblSshConnected().setFont(f.deriveFont(f.getStyle() | Font.BOLD));
-            }
-        }
-        catch (Exception e)
-        {
-            getLblSshConnected().setText("Pi Not Connected");
-            getLblSshConnected().setForeground(Color.RED);
-            getBtnDeploy().setEnabled(false);
-            getBtnRun().setEnabled(false);
-        }
-    }
 
-    /**
-     * Transfers the actively selected file to the Pi via SFTP.
-     */
-    private static void transferFile () 
-    {
-        if (getSession().isConnected() && fileTransfer != null)
-        {
-            try
-            {
-                ChannelSftp sftpChannel = (ChannelSftp) getSession().openChannel("sftp");
-                sftpChannel.connect();
-                sftpChannel.put(fileTransfer.getAbsolutePath(), fileTransfer.getName());
-                sftpChannel.disconnect();
-            }
-            catch (JSchException | SftpException e)
-            {
-                getErrorLabel().setText("ERROR: File could not be transferred.");
-            }
-        }
-    }
-    
-    /**
-     * Runs the deployed code on the Pi.
-     */
-    private static void runCode ()
-    {
-        if (getSession().isConnected() && fileTransfer != null)
-        {
-            try
-            {
-                setClExec(getSession().openChannel("exec"));
-                getClExec().setOutputStream(System.out);
-    
-                ((ChannelExec)getClExec()).setCommand("sudo java -jar " + fileTransfer.getName());
-                getClExec().connect();
-            }
-            catch (JSchException e)
-            {
-                getErrorLabel().setText("ERROR: Code could not be run.");
-            }
-            
-        }
-    }
     
     public JFrame getMainFrame()
     {
@@ -589,7 +519,7 @@ public class AppWindow
      * Gets the lblSshConnected.
      * @return the lblSshConnected
      */
-    public static JLabel getLblSshConnected()
+    public JLabel getLblSshConnected()
     {
         return lblSshConnected;
     }
@@ -600,16 +530,16 @@ public class AppWindow
      *
      * @postcondition the lblSshConnected has been changed to lblSshConnected
      */
-    public static void setLblSshConnected(JLabel lblSshConnected)
+    public void setLblSshConnected(JLabel lblSshConnected)
     {
-        AppWindow.lblSshConnected = lblSshConnected;
+        AppWindow.getInstance().lblSshConnected = lblSshConnected;
     }
 
     /**
      * Gets the session.
      * @return the session
      */
-    private static Session getSession()
+    public Session getSession()
     {
         return session;
     }
@@ -620,16 +550,16 @@ public class AppWindow
      *
      * @postcondition the session has been changed to session
      */
-    private static void setSession(Session session)
+    public void setSession(Session session)
     {
-        AppWindow.session = session;
+        AppWindow.getInstance().session = session;
     }
 
     /**
      * Gets the btnDeploy.
      * @return the btnDeploy
      */
-    private static JButton getBtnDeploy()
+    public JButton getBtnDeploy()
     {
         return btnDeploy;
     }
@@ -640,16 +570,16 @@ public class AppWindow
      *
      * @postcondition the btnDeploy has been changed to btnDeploy
      */
-    private static void setBtnDeploy(JButton btnDeploy)
+    private void setBtnDeploy(JButton btnDeploy)
     {
-        AppWindow.btnDeploy = btnDeploy;
+        AppWindow.getInstance().btnDeploy = btnDeploy;
     }
 
     /**
      * Gets the btnRun.
      * @return the btnRun
      */
-    private static JButton getBtnRun()
+    public JButton getBtnRun()
     {
         return btnRun;
     }
@@ -660,18 +590,18 @@ public class AppWindow
      *
      * @postcondition the btnRun has been changed to btnRun
      */
-    private static void setBtnRun(JButton btnRun)
+    private void setBtnRun(JButton btnRun)
     {
-        AppWindow.btnRun = btnRun;
+        AppWindow.getInstance().btnRun = btnRun;
     }
 
     /**
      * Gets the errorLabel.
      * @return the errorLabel
      */
-    private static JLabel getErrorLabel()
+    public static JLabel getErrorLabel()
     {
-        return errorLabel;
+        return AppWindow.getInstance().errorLabel;
     }
 
     /**
@@ -682,16 +612,16 @@ public class AppWindow
      */
     private static void setErrorLabel(JLabel errorLabel)
     {
-        AppWindow.errorLabel = errorLabel;
+        AppWindow.getInstance().errorLabel = errorLabel;
     }
 
     /**
      * Gets the clExec.
      * @return the clExec
      */
-    private static Channel getClExec()
+    public static Channel getClExec()
     {
-        return clExec;
+        return AppWindow.getInstance().clExec;
     }
 
     /**
@@ -700,12 +630,12 @@ public class AppWindow
      *
      * @postcondition the clExec has been changed to clExec
      */
-    private static void setClExec(Channel clExec)
+    public static void setClExec(Channel clExec)
     {
-        AppWindow.clExec = clExec;
+        AppWindow.getInstance().clExec = clExec;
     }
     
-    private static AppWindow getInstance()
+    public static AppWindow getInstance()
     {
         if (window == null)
             window = new AppWindow();
