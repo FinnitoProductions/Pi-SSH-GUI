@@ -58,11 +58,6 @@ public class AppWindow
     private static JButton btnDeploy;
     private static JButton btnRun;
 
-    private static String user = "pi";
-    private static String password = "team1072";
-    private static String ip = "192.168.178.63";
-    private static int port = 22;
-    
     private static Session session;
     
     private static File fileTransfer;
@@ -78,21 +73,11 @@ public class AppWindow
     private JLabel lblLeftArrow;
     private JLabel lblRightArrow;
     
-    private static final String srcBindingsName = "/bindings.json";
-    private static final String userHome = System.getProperty("user.home") + File.separator;
-    private static final String dirName = "pi-ssh-app";
-    private static final String absoluteDirName = userHome + dirName;
-    private static final String absoluteBindingsName = absoluteDirName + File.separator + "bindings.json";
     private JTextField downArrowField;
     private JTextField leftArrowField;
     private JTextField rightArrowField;
     
     private JSONObject jo;
-    
-    private String upKey = "up";
-    private String downKey = "down";
-    private String leftKey = "left";
-    private String rightKey = "right";
     
     /**
      * Launches the application.
@@ -101,9 +86,15 @@ public class AppWindow
     public static void main(String[] args) throws Exception
     {
         AppWindow window = new AppWindow();
+        
+        window.getBackgroundFrame().setVisible(true);
+        
         window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
         window.getMainFrame().setVisible(true);
+        
+
+
 
         while (true)
         {
@@ -136,25 +127,32 @@ public class AppWindow
      */
     private void initialize()
     {
-        new File(absoluteDirName).mkdir();
+        new File(Constants.absoluteDirName).mkdir();
         try
         {
-            File json = new File(absoluteBindingsName);
+            File json = new File(Constants.absoluteBindingsName);
             boolean newFile = json.createNewFile();
  
             if (newFile)
-                writeStringToFile(absoluteBindingsName, getStringFromLocalFile(srcBindingsName));
+                writeStringToFile(Constants.absoluteBindingsName, getStringFromLocalFile(Constants.srcBindingsName));
         }
         catch (Exception e2)
         {
             // TODO Auto-generated catch block
             e2.printStackTrace();
         }
+        backgroundFrame = new JFrame();
+        backgroundFrame.setBounds(Constants.FRAME_LOCATION_X, Constants.FRAME_LOCATION_Y, Constants.FRAME_SIZE_X, Constants.FRAME_SIZE_Y);
+        backgroundFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        backgroundFrame.getContentPane().setLayout(null);
+        
         mainFrame = new JFrame();
         mainFrame.getContentPane().setFont(new Font("Tahoma", Font.PLAIN, 23));
-        mainFrame.setBounds(100, 100, 766, 600); // 550 for exporting
+        mainFrame.setBounds(Constants.FRAME_LOCATION_X, Constants.FRAME_LOCATION_Y, Constants.FRAME_SIZE_X, Constants.FRAME_SIZE_Y); // 550 for exporting
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.getContentPane().setLayout(null);
+        
+
         
         JButton btnSelectFile = new JButton("Select File");
         btnSelectFile.setBackground(Color.RED);
@@ -165,6 +163,7 @@ public class AppWindow
             public void actionPerformed(ActionEvent arg0) {
                 final JFileChooser fc = new JFileChooser();
                 fc.setDialogTitle("Choose a file to be transferred." );
+                fc.setCurrentDirectory(new File(System.getProperty("user.home")));
                 fc.setPreferredSize(new Dimension(900, 900));
                 fc.showOpenDialog(null);
                 fileTransfer = fc.getSelectedFile();
@@ -241,7 +240,7 @@ public class AppWindow
 
         try
         {
-            String fileContents = getStringFromExternalFile(absoluteBindingsName);
+            String fileContents = getStringFromExternalFile(Constants.absoluteBindingsName);
             
             jo = new JSONObject(fileContents);
         
@@ -263,7 +262,7 @@ public class AppWindow
             upArrowField.setColumns(2);
             try
             {
-                upArrowField.setText(jo == null ? "" : jo.getString(upKey));
+                upArrowField.setText(jo == null ? "" : jo.getString(Constants.upKey));
             }
             catch (JSONException e1)
             {
@@ -282,8 +281,8 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put(upKey, upArrowField.getText());
-                        writeStringToFile(absoluteBindingsName, jo.toString());
+                        jo.put(Constants.upKey, upArrowField.getText());
+                        writeStringToFile(Constants.absoluteBindingsName, jo.toString());
                     }
                     catch (Exception e)
                     {
@@ -303,7 +302,7 @@ public class AppWindow
             downArrowField = new JTextField();
             try
             {
-                downArrowField.setText(jo == null ? "" : jo.getString(downKey));
+                downArrowField.setText(jo == null ? "" : jo.getString(Constants.downKey));
             }
             catch (JSONException e1)
             {
@@ -327,8 +326,8 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put(downKey, downArrowField.getText());
-                        writeStringToFile(absoluteBindingsName, jo.toString());
+                        jo.put(Constants.downKey, downArrowField.getText());
+                        writeStringToFile(Constants.absoluteBindingsName, jo.toString());
                     }
                     catch (Exception e)
                     {
@@ -348,7 +347,7 @@ public class AppWindow
             leftArrowField = new JTextField();
             try
             {
-                leftArrowField.setText(jo == null ? "" : jo.getString(leftKey));
+                leftArrowField.setText(jo == null ? "" : jo.getString(Constants.leftKey));
             }
             catch (JSONException e1)
             {
@@ -371,8 +370,8 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put(leftKey, leftArrowField.getText());
-                        writeStringToFile(absoluteBindingsName, jo.toString());
+                        jo.put(Constants.leftKey, leftArrowField.getText());
+                        writeStringToFile(Constants.absoluteBindingsName, jo.toString());
                     }
                     catch (Exception e)
                     {
@@ -393,7 +392,7 @@ public class AppWindow
             rightArrowField = new JTextField();
             try
             {
-                rightArrowField.setText(jo == null ? "" : jo.getString(rightKey));
+                rightArrowField.setText(jo == null ? "" : jo.getString(Constants.rightKey));
             }
             catch (JSONException e1)
             {
@@ -416,8 +415,8 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put(rightKey, rightArrowField.getText());
-                        writeStringToFile(absoluteBindingsName, jo.toString());
+                        jo.put(Constants.rightKey, rightArrowField.getText());
+                        writeStringToFile(Constants.absoluteBindingsName, jo.toString());
                     }
                     catch (Exception e)
                     {
@@ -467,8 +466,8 @@ public class AppWindow
         {
             JSch jsch = new JSch();
             
-            session = jsch.getSession(user, ip, port);
-            session.setPassword(password);
+            session = jsch.getSession(Constants.user, Constants.ip, Constants.port);
+            session.setPassword(Constants.password);
             session.setConfig("StrictHostKeyChecking", "no");
             lblSshConnected.setText("Connecting...");
             lblSshConnected.setForeground(Color.BLUE);
@@ -540,6 +539,10 @@ public class AppWindow
         return mainFrame;
     }
     
+    public JFrame getBackgroundFrame()
+    {
+        return backgroundFrame;
+    }
     private String getStringFromExternalFile (String fileName) throws Exception
     {
         String fileContents = "";
@@ -556,7 +559,7 @@ public class AppWindow
     {
         String fileContents = "";
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(srcBindingsName)));
+        BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(Constants.srcBindingsName)));
 
         while (br.ready())
             fileContents += br.readLine() + System.getProperty("line.separator");
