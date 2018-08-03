@@ -109,7 +109,7 @@ public class AppWindow
             {
                 try
                 {
-                    SSHUtil.connectSSH();
+                    SSHUtil.connectSSH(AppWindow.getInstance());
                 }
                 catch (Exception e)
                 {
@@ -173,10 +173,10 @@ public class AppWindow
                 fc.setCurrentDirectory(new File(System.getProperty("user.home")));
                 fc.setPreferredSize(new Dimension(900, 900));
                 fc.showOpenDialog(null);
-                fileTransfer = fc.getSelectedFile();
-                if (fileTransfer == null)
+                setFileTransfer(fc.getSelectedFile());
+                if (getFileTransfer() == null)
                     return;
-                String filePath = fileTransfer.getAbsolutePath();
+                String filePath = getFileTransfer().getAbsolutePath();
                 fileTextField.setText("");
                 fileTextField.setText(filePath);
                 if (filePath != null && filePath.length() > 0 && getSession().isConnected())
@@ -215,7 +215,7 @@ public class AppWindow
         getBtnDeploy().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0)
             {
-                SSHUtil.transferFile(getSession(), fileTransfer);
+                SSHUtil.transferFile(AppWindow.getInstance(), getFileTransfer());
             }
         });
         getBtnDeploy().setBounds(386, 482, 141, 35);
@@ -226,7 +226,7 @@ public class AppWindow
         getBtnRun().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0)
             {
-                SSHUtil.runCode(getSession(), fileTransfer);
+                SSHUtil.runCode(AppWindow.getInstance(), getFileTransfer());
             }
         });
         getBtnRun().setBounds(578, 482, 141, 35);
@@ -599,7 +599,7 @@ public class AppWindow
      * Gets the errorLabel.
      * @return the errorLabel
      */
-    public static JLabel getErrorLabel()
+    public JLabel getErrorLabel()
     {
         return AppWindow.getInstance().errorLabel;
     }
@@ -610,7 +610,7 @@ public class AppWindow
      *
      * @postcondition the errorLabel has been changed to errorLabel
      */
-    private static void setErrorLabel(JLabel errorLabel)
+    private void setErrorLabel(JLabel errorLabel)
     {
         AppWindow.getInstance().errorLabel = errorLabel;
     }
@@ -619,7 +619,7 @@ public class AppWindow
      * Gets the clExec.
      * @return the clExec
      */
-    public static Channel getClExec()
+    public Channel getClExec()
     {
         return AppWindow.getInstance().clExec;
     }
@@ -630,7 +630,7 @@ public class AppWindow
      *
      * @postcondition the clExec has been changed to clExec
      */
-    public static void setClExec(Channel clExec)
+    public void setClExec(Channel clExec)
     {
         AppWindow.getInstance().clExec = clExec;
     }
@@ -640,5 +640,25 @@ public class AppWindow
         if (window == null)
             window = new AppWindow();
         return window;
+    }
+
+    /**
+     * Gets the fileTransfer.
+     * @return the fileTransfer
+     */
+    public File getFileTransfer()
+    {
+        return fileTransfer;
+    }
+
+    /**
+     * Sets fileTransfer to a given value.
+     * @param fileTransfer the fileTransfer to set
+     *
+     * @postcondition the fileTransfer has been changed to fileTransfer
+     */
+    public void setFileTransfer(File fileTransfer)
+    {
+        this.fileTransfer = fileTransfer;
     }
 }

@@ -24,9 +24,8 @@ public class SSHUtil
     /**
      * Forms the initial SSH connection with the Pi.
      */
-    public static void connectSSH() throws Exception
+    public static void connectSSH(AppWindow window) throws Exception
     {
-        AppWindow window = AppWindow.getInstance();
         try
         {
             JSch jsch = new JSch();
@@ -58,14 +57,13 @@ public class SSHUtil
     /**
      * Transfers the actively selected file to the Pi via SFTP.
      */
-    public static void transferFile (Session s, File f) 
+    public static void transferFile (AppWindow window, File f) 
     {
-        AppWindow window = AppWindow.getInstance();
-        if (s.isConnected() && f != null)
+        if (window.getSession().isConnected() && f != null)
         {
             try
             {
-                ChannelSftp sftpChannel = (ChannelSftp) s.openChannel("sftp");
+                ChannelSftp sftpChannel = (ChannelSftp) window.getSession().openChannel("sftp");
                 sftpChannel.connect();
                 sftpChannel.put(f.getAbsolutePath(), f.getName());
                 sftpChannel.disconnect();
@@ -80,21 +78,21 @@ public class SSHUtil
     /**
      * Runs the deployed code on the Pi.
      */
-    public static void runCode (Session s, File f)
+    public static void runCode (AppWindow window, File f)
     {
-        if (s.isConnected() && f != null)
+        if (window.getSession().isConnected() && f != null)
         {
             try
             {
-                AppWindow.setClExec(s.openChannel("exec"));
-                AppWindow.getClExec().setOutputStream(System.out);
+                window.setClExec(window.getSession().openChannel("exec"));
+                window.getClExec().setOutputStream(System.out);
     
-                ((ChannelExec)AppWindow.getClExec()).setCommand("sudo java -jar " + f.getName());
-                AppWindow.getClExec().connect();
+                ((ChannelExec)window.getClExec()).setCommand("sudo java -jar " + f.getName());
+                window.getClExec().connect();
             }
             catch (JSchException e)
             {
-                AppWindow.getErrorLabel().setText("ERROR: Code could not be run.");
+                window.getErrorLabel().setText("ERROR: Code could not be run.");
             }
             
         }
