@@ -51,7 +51,7 @@ public class AppWindow
 
     private JFrame mainFrame;
     private JFrame backgroundFrame;
-    private JFrame setupFrame;
+    private JFrame setupFrame; 
     
     private JTextField fileTextField;
     private static JLabel lblSshConnected;
@@ -79,13 +79,15 @@ public class AppWindow
     
     private JSONObject jo;
     
+    private static AppWindow window;
+    
     /**
      * Launches the application.
      * @throws Exception 
      */
     public static void main(String[] args) throws Exception
     {
-        AppWindow window = new AppWindow();
+        window = new AppWindow();
         
         window.getBackgroundFrame().setVisible(true);
         
@@ -117,7 +119,7 @@ public class AppWindow
     /**
      * Creates the application.
      */
-    public AppWindow()
+    private AppWindow()
     {
         initialize();
     }
@@ -543,7 +545,8 @@ public class AppWindow
     {
         return backgroundFrame;
     }
-    private String getStringFromExternalFile (String fileName) throws Exception
+    
+    private static String getStringFromExternalFile (String fileName) throws Exception
     {
         String fileContents = "";
 
@@ -555,11 +558,11 @@ public class AppWindow
         return fileContents;
     }
 
-    private String getStringFromLocalFile (String fileName) throws Exception
+    private static String getStringFromLocalFile (String fileName) throws Exception
     {
         String fileContents = "";
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(Constants.INT_K_BIND_PATH)));
+ 
+        BufferedReader br = new BufferedReader(new InputStreamReader(AppWindow.getInstance().getClass().getResourceAsStream(Constants.INT_K_BIND_PATH)));
 
         while (br.ready())
             fileContents += br.readLine() + System.getProperty("line.separator");
@@ -567,7 +570,7 @@ public class AppWindow
         return fileContents;
     }
     
-    private String setJSONValue (String fileContents, String var, String newVal)
+    private static String setJSONValue (String fileContents, String var, String newVal)
     {
         if (!fileContents.contains(var))
             return "";
@@ -575,7 +578,7 @@ public class AppWindow
         
         return oldVal;
     }
-    private void writeStringToFile (String fileName, String newContents) throws Exception
+    private static void writeStringToFile (String fileName, String newContents) throws Exception
     {
         BufferedWriter br = new BufferedWriter (new FileWriter(fileName));
         br.write(newContents);
@@ -700,5 +703,12 @@ public class AppWindow
     private static void setClExec(Channel clExec)
     {
         AppWindow.clExec = clExec;
+    }
+    
+    private static AppWindow getInstance()
+    {
+        if (window == null)
+            window = new AppWindow();
+        return window;
     }
 }
