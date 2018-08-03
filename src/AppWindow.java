@@ -127,14 +127,14 @@ public class AppWindow
      */
     private void initialize()
     {
-        new File(Constants.absoluteDirName).mkdir();
+        new File(Constants.EXT_DIR_PATH).mkdir();
         try
         {
-            File json = new File(Constants.absoluteBindingsName);
+            File json = new File(Constants.EXT_K_BIND_PATH);
             boolean newFile = json.createNewFile();
  
             if (newFile)
-                writeStringToFile(Constants.absoluteBindingsName, getStringFromLocalFile(Constants.srcBindingsName));
+                writeStringToFile(Constants.EXT_K_BIND_PATH, getStringFromLocalFile(Constants.INT_K_BIND_PATH));
         }
         catch (Exception e2)
         {
@@ -240,7 +240,7 @@ public class AppWindow
 
         try
         {
-            String fileContents = getStringFromExternalFile(Constants.absoluteBindingsName);
+            String fileContents = getStringFromExternalFile(Constants.EXT_K_BIND_PATH);
             
             jo = new JSONObject(fileContents);
         
@@ -262,7 +262,7 @@ public class AppWindow
             upArrowField.setColumns(2);
             try
             {
-                upArrowField.setText(jo == null ? "" : jo.getString(Constants.upKey));
+                upArrowField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_UP_KEY));
             }
             catch (JSONException e1)
             {
@@ -281,8 +281,8 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put(Constants.upKey, upArrowField.getText());
-                        writeStringToFile(Constants.absoluteBindingsName, jo.toString());
+                        jo.put(Constants.K_BIND_UP_KEY, upArrowField.getText());
+                        writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
                     }
                     catch (Exception e)
                     {
@@ -302,7 +302,7 @@ public class AppWindow
             downArrowField = new JTextField();
             try
             {
-                downArrowField.setText(jo == null ? "" : jo.getString(Constants.downKey));
+                downArrowField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_DOWN_KEY));
             }
             catch (JSONException e1)
             {
@@ -326,8 +326,8 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put(Constants.downKey, downArrowField.getText());
-                        writeStringToFile(Constants.absoluteBindingsName, jo.toString());
+                        jo.put(Constants.K_BIND_DOWN_KEY, downArrowField.getText());
+                        writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
                     }
                     catch (Exception e)
                     {
@@ -347,7 +347,7 @@ public class AppWindow
             leftArrowField = new JTextField();
             try
             {
-                leftArrowField.setText(jo == null ? "" : jo.getString(Constants.leftKey));
+                leftArrowField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_LEFT_KEY));
             }
             catch (JSONException e1)
             {
@@ -370,8 +370,8 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put(Constants.leftKey, leftArrowField.getText());
-                        writeStringToFile(Constants.absoluteBindingsName, jo.toString());
+                        jo.put(Constants.K_BIND_LEFT_KEY, leftArrowField.getText());
+                        writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
                     }
                     catch (Exception e)
                     {
@@ -392,7 +392,7 @@ public class AppWindow
             rightArrowField = new JTextField();
             try
             {
-                rightArrowField.setText(jo == null ? "" : jo.getString(Constants.rightKey));
+                rightArrowField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_RIGHT_KEY));
             }
             catch (JSONException e1)
             {
@@ -415,8 +415,8 @@ public class AppWindow
                 {
                     try
                     {
-                        jo.put(Constants.rightKey, rightArrowField.getText());
-                        writeStringToFile(Constants.absoluteBindingsName, jo.toString());
+                        jo.put(Constants.K_BIND_RIGHT_KEY, rightArrowField.getText());
+                        writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
                     }
                     catch (Exception e)
                     {
@@ -466,8 +466,8 @@ public class AppWindow
         {
             JSch jsch = new JSch();
             
-            session = jsch.getSession(Constants.user, Constants.ip, Constants.port);
-            session.setPassword(Constants.password);
+            session = jsch.getSession(Constants.PI_USER, Constants.PI_IP, Constants.PI_PORT);
+            session.setPassword(Constants.PI_PASSWORD);
             session.setConfig("StrictHostKeyChecking", "no");
             lblSshConnected.setText("Connecting...");
             lblSshConnected.setForeground(Color.BLUE);
@@ -559,7 +559,7 @@ public class AppWindow
     {
         String fileContents = "";
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(Constants.srcBindingsName)));
+        BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(Constants.INT_K_BIND_PATH)));
 
         while (br.ready())
             fileContents += br.readLine() + System.getProperty("line.separator");
