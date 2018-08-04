@@ -14,7 +14,7 @@ import com.jcraft.jsch.SftpException;
 import window.AppWindow;
 
 /**
- * 
+ * Contains multiple methods for interfacing with an SSH device.
  * @author Finn Frankis
  * @version Aug 3, 2018
  */
