@@ -8,12 +8,22 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Wraps the process of reading from and writing to connected PipedInput and PipedOutput streams.
+ * Note that a PipedInputStream is periodically funneled data from a PipedOutputStream, which can be 
+ * written to like a standard OutputStream.
+ * @author Finn Frankis
+ * @version Aug 4, 2018
+ */
 public class PipedInputOutputWrapper {
    private PipedOutputStream pipedOut;
    private PipedInputStream pipedIn;
    
    private PipedOutputThread pot;
    
+   /**
+    * Constructs a new PipedInputOutputWrapper.
+    */
    public PipedInputOutputWrapper()
    {
        pipedIn = new PipedInputStream();
@@ -25,6 +35,12 @@ public class PipedInputOutputWrapper {
 
 
    }
+   
+   /**
+    * Represents the thread to write to the output stream.
+    * @author Finn Frankis
+    * @version Aug 4, 2018
+    */
    class PipedOutputThread implements Runnable{
        
        private String currentVal;
@@ -45,6 +61,10 @@ public class PipedInputOutputWrapper {
             }
         
         }
+        /**
+         * Writes a value to the output stream on a new line.
+         * @param s the value to write to the output stream
+         */
         public void writeVal (String s)
         {
             currentVal = s;
@@ -52,16 +72,28 @@ public class PipedInputOutputWrapper {
         }
    }
     
+   /**
+    * Gets the current piped input stream.
+    * @return the PipedInputStream in current use
+    */
     public PipedInputStream getInputStream()
     {
         return pipedIn;
     }
     
+    /**
+     * Gets the current piped output stream.
+     * @return the PipedOutputStream in current use
+     */
     public PipedOutputStream getOutputStream()
     {
         return pipedOut;
     }
     
+    /**
+     * Writes a given value to the output thread for reading by the input stream.
+     * @param s the String to be written
+     */
     public void writeVal (String s)
     {
         pot.writeVal(s);
