@@ -86,6 +86,7 @@ public class SSHUtil
             {
                 window.setClExec(window.getSession().openChannel("exec"));
                 window.getClExec().setOutputStream(System.out);
+                window.getClExec().setInputStream(window.getInputOutput().getInputStream());
     
                 ((ChannelExec)window.getClExec()).setCommand("sudo java -jar " + f.getName());
                 window.getClExec().connect();

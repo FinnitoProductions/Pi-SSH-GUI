@@ -33,6 +33,7 @@ import com.jcraft.jsch.*;
 
 import util.Constants;
 import util.FileUtil;
+import util.PipedInputOutputWrapper;
 import util.SSHUtil;
 
 import javax.swing.JFormattedTextField;
@@ -43,6 +44,8 @@ import java.awt.Font;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 /**
  * Represents the primary window of the app.
  * @author Finn Frankis
@@ -81,6 +84,8 @@ public class AppWindow
     private JSONObject jo;
     
     private static AppWindow window;
+
+    private PipedInputOutputWrapper inputOutput;
     
     /**
      * Launches the application.
@@ -93,6 +98,53 @@ public class AppWindow
         window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
         window.getMainFrame().setVisible(true);
+        
+        PipedInputOutputWrapper piod = window.getInputOutput();
+        /*new Thread() {
+            public void run()
+            {
+
+                while (true)
+                {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                    try
+                    {
+                        if (br.ready())
+                            piod.writeVal(br.readLine());
+                        Thread.sleep(50);
+                    }
+                    catch (Exception e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+    
+                }
+            }
+        }.start();*/
+        
+        /*new Thread() {
+            public void run()
+            {
+
+                while (true)
+                {
+                    try
+                    {
+                        int i = 0;
+                        if((i=piod.getInputStream().read())!=-1)
+                            System.out.print((char)i);
+                        Thread.sleep(50);
+                    }
+                    catch (Exception e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+    
+                }
+            }
+        }.start();*/
         
 
 
@@ -121,6 +173,7 @@ public class AppWindow
     private AppWindow()
     {
         initialize();
+        setInputOutput(new PipedInputOutputWrapper());
     }
 
     private void setupExternalFiles()
@@ -172,19 +225,34 @@ public class AppWindow
                 {
                     if (getSession().isConnected() && getClExec().isConnected())
                     {
-                        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(getClExec().getOutputStream()));
                         if (e.getID() == KeyEvent.KEY_PRESSED) {
                             if (e.getKeyCode() == KeyEvent.VK_UP)
                             {
-                                System.out.println("KEY UP");
-                                bw.write("i");
+                                getInputOutput().writeVal(jo.getString(Constants.K_BIND_UP_KEY));
+                                
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_DOWN)
+                            {
+                                getInputOutput().writeVal(jo.getString(Constants.K_BIND_DOWN_KEY));
+                                
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_LEFT)
+                            {
+                                getInputOutput().writeVal(jo.getString(Constants.K_BIND_LEFT_KEY));
+                                
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+                            {
+                                getInputOutput().writeVal(jo.getString(Constants.K_BIND_RIGHT_KEY));
+                                
                             }
                         }
                     }
                 }
-                catch (IOException ex)
+                catch (Exception ex)
                 {
                     getErrorLabel().setText("ERROR: Key Press Failed.");
+                    ex.printStackTrace();
                 }
               // Pass the KeyEvent to the next KeyEventDispatcher in the chain
               return false;
@@ -652,5 +720,25 @@ public class AppWindow
     public void setFileTransfer(File fileTransfer)
     {
         this.fileTransfer = fileTransfer;
+    }
+
+    /**
+     * Gets the inputOutput.
+     * @return the inputOutput
+     */
+    public PipedInputOutputWrapper getInputOutput()
+    {
+        return inputOutput;
+    }
+
+    /**
+     * Sets inputOutput to a given value.
+     * @param inputOutput the inputOutput to set
+     *
+     * @postcondition the inputOutput has been changed to inputOutput
+     */
+    public void setInputOutput(PipedInputOutputWrapper inputOutput)
+    {
+        this.inputOutput = inputOutput;
     }
 }
