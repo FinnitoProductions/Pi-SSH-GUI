@@ -1,69 +1,135 @@
 package window;
 
 import java.awt.Component;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import org.knowm.xchart.QuickChart;
 import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 
+import util.Constants;
+
 /**
- * 
+ * Represents a single chart of data.
  * @author Finn Frankis
  * @version Aug 6, 2018
  */
 public class Grapher {
     private static List<List<Double>> prevData;
+    private XYChart chart;
+    private JPanel chartPanel;
 
+    private ArrayList<Integer> size;
+    private ArrayList<Integer> location;
+    
+    private String dataLegend;
 
-    public static void main (String[] args) throws Exception {
+    /**
+     * Constructs a new Grapher.
+     * @param title the title of the graph
+     * @param xAxisTitle the title of the x-axis
+     * @param yAxisTitle the title of the y-axis
+     * @param dataLegend the name of the data being graphed (for the legend)
+     */
+    public Grapher (String title, String xAxisTitle, String yAxisTitle, String dataLegend) {
+        this.dataLegend = dataLegend;
+        
         prevData = new ArrayList<List<Double>>();
         prevData.add(new ArrayList<Double>());
         prevData.add(new ArrayList<Double>());
+        chart = QuickChart.getChart(title, xAxisTitle, yAxisTitle, dataLegend,
+                new double[] {0}, new double[] {0});
+        chartPanel = new XChartPanel<XYChart>(chart);
 
-        prevData.get(0).add(0d);
-        prevData.get(1).add(0d);
+        size = new ArrayList<Integer>();
+        size.add(0);
+        size.add(0);
 
-        double phase = 0;
+        location = new ArrayList<Integer>();
+        location.add(0);
+        location.add(0);
+    }
 
-        double[][] initData = getData();
-        // Create Chart
-        final XYChart chart = QuickChart.getChart("Simple XChart Real-time Demo", "Time", "Position", "sine",
-                initData[0], initData[1]);
+    /**
+     * Gets the current chart as a JPanel.
+     * @return the chart, formatted as a JPanel
+     */
+    public JPanel getChartPanel () {
+        chartPanel = new XChartPanel<XYChart>(chart);
+        chartPanel.validate();
+        chartPanel.setSize(size.get(Constants.GRAPH_X_INDEX), size.get(Constants.GRAPH_Y_INDEX));
+        chartPanel.setLocation(location.get(Constants.GRAPH_X_INDEX), location.get(Constants.GRAPH_Y_INDEX));
 
-        // Show it
-        final SwingWrapper<XYChart> sw = new SwingWrapper<XYChart>(chart);
+        return chartPanel;
+    }
 
-        sw.displayChart();
+    /**
+     * Adds a new point to the graph.
+     * @param x the x-value of the point to be added
+     * @param y the y-value of the point to be added
+     */
+    public void addPoint (double x, double y) {
+        List<Double> xData = prevData.get(Constants.GRAPH_X_INDEX);
+        xData.add(x);
 
-        while (true) {
+        List<Double> yData = prevData.get(Constants.GRAPH_Y_INDEX);
+        yData.add(y);
 
-            Thread.sleep(100);
+        final double[][] data = getDataArr();
 
-            final double[][] data = getData();
+        System.out.println(Arrays.toString(data[0]));
+        System.out.println(Arrays.toString(data[1]));
+        System.out.println();
 
-            System.out.println(Arrays.toString(data[0]));
-            System.out.println(Arrays.toString(data[1]));
-            System.out.println();
-
-            chart.updateXYSeries("sine", data[0], data[1], null);
-            sw.repaintChart();
-        }
+        chart.updateXYSeries(dataLegend, data[Constants.GRAPH_X_INDEX], data[Constants.GRAPH_Y_INDEX], null);
 
     }
 
-    private static double[][] getData () {
-        List<Double> xData = prevData.get(0);
-        xData.add(xData.get(xData.size() - 1) + 1);
-
-        List<Double> yData = prevData.get(1);
-        yData.add((yData.get(yData.size() - 1) + 1) * 1.1);
-
-        return new double[][] {toArray(xData), toArray(yData)};
+    /**
+     * Sets the size of the graph when displayed as a JPanel.
+     * @param x the x-value of the size
+     * @param y the y-value of the size
+     * @return this current Grapher
+     */
+    public Grapher setSize (int x, int y) {
+        size.set(Constants.GRAPH_X_INDEX, x);
+        size.set(Constants.GRAPH_Y_INDEX, y);
+        return this;
     }
 
+    /**
+     * Sets the location of the graph when displayed as a JPanel.
+     * @param x the x-value of the location
+     * @param y the y-value of the location
+     * @return this current Grapher
+     */
+    public Grapher setLocation (int x, int y) {
+        location.set(Constants.GRAPH_X_INDEX, x);
+        location.set(Constants.GRAPH_Y_INDEX, y);
+        return this;
+    }
+
+    /**
+     * Converts the data into an array.
+     * @return the data in array form
+     */
+    private double[][] getDataArr () {
+        return new double[][] {toArray(prevData.get(Constants.GRAPH_X_INDEX)),
+                toArray(prevData.get(Constants.GRAPH_Y_INDEX))};
+    }
+
+    /**
+     * Converts a given ArrayList of doubles into an array of doubles.
+     * @param list the ArrayList to convert
+     * @return the ArrayList, converted into an array
+     */
     private static double[] toArray (List<Double> list) {
         double[] toReturn = new double[list.size()];
         for (int i = 0; i < list.size(); i++)
@@ -71,4 +137,30 @@ public class Grapher {
         return toReturn;
 
     }
+
+    public static void main (String[] args) {
+        Grapher g = new Grapher("Test Graph", "x", "y", "parabola");
+        JFrame frame = new JFrame();
+        frame.setBounds(Constants.FRAME_LOCATION_X, Constants.FRAME_LOCATION_Y, Constants.FRAME_SIZE_X,
+                Constants.FRAME_SIZE_Y); // 550 for exporting
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().setLayout(null);
+        
+        g.setSize(400, 400);
+        g.setLocation(25, 25);
+        for (double i = 0; i < 100000; i += .1) {
+            g.addPoint(i, Math.pow(i, 2));
+            frame.getContentPane().add(g.getChartPanel());
+            frame.repaint();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+    }
+
 }

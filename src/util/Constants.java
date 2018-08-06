@@ -29,4 +29,7 @@ public class Constants {
     public static final String K_BIND_LEFT_KEY = "left";
     public static final String K_BIND_RIGHT_KEY = "right";
     public static final String K_BIND_STOP_CHAR = "^C";
+    
+    public static final int GRAPH_X_INDEX = 0;
+    public static final int GRAPH_Y_INDEX = 1;
 }
