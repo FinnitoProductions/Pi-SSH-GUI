@@ -38,7 +38,8 @@ public class Grapher {
      * @param yAxisTitle the title of the y-axis
      * @param dataLegend the name of the data being graphed (for the legend)
      */
-    public Grapher (String title, String xAxisTitle, String yAxisTitle, String dataLegend) {
+    public Grapher (String title, String xAxisTitle, String yAxisTitle, String dataLegend, int sizeX, int sizeY,
+            int locationX, int locationY) {
         this.dataLegend = dataLegend;
         
         prevData = new ArrayList<List<Double>>();
@@ -55,6 +56,9 @@ public class Grapher {
         location = new ArrayList<Integer>();
         location.add(0);
         location.add(0);
+        
+        setSize(sizeX, sizeY);
+        setLocation(locationX, locationY);
     }
 
     /**
@@ -94,26 +98,22 @@ public class Grapher {
 
     /**
      * Sets the size of the graph when displayed as a JPanel.
-     * @param x the x-value of the size
-     * @param y the y-value of the size
-     * @return this current Grapher
+     * @param sizeX the x-value of the size
+     * @param sizeY the y-value of the size
      */
-    public Grapher setSize (int x, int y) {
-        size.set(Constants.GRAPH_X_INDEX, x);
-        size.set(Constants.GRAPH_Y_INDEX, y);
-        return this;
+    public void setSize (int sizeX, int sizeY) {
+        size.set(Constants.GRAPH_X_INDEX, sizeX);
+        size.set(Constants.GRAPH_Y_INDEX, sizeY);
     }
 
     /**
      * Sets the location of the graph when displayed as a JPanel.
-     * @param x the x-value of the location
-     * @param y the y-value of the location
-     * @return this current Grapher
+     * @param locX the x-value of the location
+     * @param locY the y-value of the location
      */
-    public Grapher setLocation (int x, int y) {
-        location.set(Constants.GRAPH_X_INDEX, x);
-        location.set(Constants.GRAPH_Y_INDEX, y);
-        return this;
+    public void setLocation (int locX, int locY) {
+        location.set(Constants.GRAPH_X_INDEX, locX);
+        location.set(Constants.GRAPH_Y_INDEX, locY);
     }
 
     /**
@@ -139,16 +139,14 @@ public class Grapher {
     }
 
     public static void main (String[] args) {
-        Grapher g = new Grapher("Test Graph", "x", "y", "parabola");
+        Grapher g = new Grapher("Test Graph", "x", "y", "parabola", 400, 400, 25, 25);
         JFrame frame = new JFrame();
         frame.setBounds(Constants.FRAME_LOCATION_X, Constants.FRAME_LOCATION_Y, Constants.FRAME_SIZE_X,
                 Constants.FRAME_SIZE_Y); // 550 for exporting
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
-        
-        g.setSize(400, 400);
-        g.setLocation(25, 25);
+
         for (double i = 0; i < 100000; i += .1) {
             g.addPoint(i, Math.pow(i, 2));
             frame.getContentPane().add(g.getChartPanel());
