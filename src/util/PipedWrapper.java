@@ -18,7 +18,7 @@ import javax.xml.ws.Service;
  * @author Finn Frankis
  * @version Aug 4, 2018
  */
-public class PipedInputOutputWrapper {
+public class PipedWrapper {
     private PipedOutputStream pipedOut;
     private PipedInputStream pipedIn;
 
@@ -30,7 +30,7 @@ public class PipedInputOutputWrapper {
     /**
      * Constructs a new PipedInputOutputWrapper.
      */
-    public PipedInputOutputWrapper () {
+    public PipedWrapper () {
         pipedIn = new PipedInputStream();
         pipedOut = new PipedOutputStream();
         try {

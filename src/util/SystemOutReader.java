@@ -16,7 +16,7 @@ import window.AppWindow;
 public class SystemOutReader {
 
     private static ArrayList<String> unreadLines;
-    private PipedInputOutputWrapper pipedWrapper;
+    private PipedWrapper pipedWrapper;
 
     /**
      * Constructs a new SystemOutReader.
@@ -59,7 +59,7 @@ public class SystemOutReader {
 
     /**
      * Gets the first unread line and removes it from the ArrayList of unread lines.
-     * @return the first unread line, removing it
+     * @return the first unread line, removing it   
      */
     public String getFirstUnread () {
         if (unreadLines.size() == 0)

@@ -80,12 +80,12 @@ public class SSHUtil {
                 
                 if (window.getSystemOut() != null)
                     window.getSystemOut().stop();
-                window.setSystemOut(new PipedInputOutputWrapper());
+                window.setSystemOut(new PipedWrapper());
                 window.getClExec().setOutputStream(window.getSystemOut().getOutputStream());
                 
                 if (window.getSSHCommandValue() != null)
                     window.getSSHCommandValue().stop();
-                window.setSSHCommandValue(new PipedInputOutputWrapper());
+                window.setSSHCommandValue(new PipedWrapper());
                 window.getClExec().setInputStream(window.getSSHCommandValue().getInputStream());
 
                 ((ChannelExec) window.getClExec()).setCommand("sudo java -jar " + f.getName());

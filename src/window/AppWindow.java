@@ -25,7 +25,7 @@ import com.jcraft.jsch.Session;
 
 import util.Constants;
 import util.FileUtil;
-import util.PipedInputOutputWrapper;
+import util.PipedWrapper;
 import util.SSHUtil;
 import util.SystemOutReader;
 
@@ -67,8 +67,8 @@ public class AppWindow {
 
     private static AppWindow window;
 
-    private PipedInputOutputWrapper sshCommandValue;
-    private PipedInputOutputWrapper systemOut;
+    private PipedWrapper sshCommandValue;
+    private PipedWrapper systemOut;
     
     private SystemOutReader outReader;
     
@@ -612,7 +612,7 @@ public class AppWindow {
      * Gets the inputOutput.
      * @return the inputOutput
      */
-    public PipedInputOutputWrapper getSSHCommandValue () {
+    public PipedWrapper getSSHCommandValue () {
         return sshCommandValue;
     }
 
@@ -622,7 +622,7 @@ public class AppWindow {
      *
      * @postcondition the inputOutput has been changed to inputOutput
      */
-    public void setSSHCommandValue (PipedInputOutputWrapper inputOutput) {
+    public void setSSHCommandValue (PipedWrapper inputOutput) {
         this.sshCommandValue = inputOutput;
     }
 
@@ -648,7 +648,7 @@ public class AppWindow {
      * Gets the systemOut.
      * @return the systemOut
      */
-    public PipedInputOutputWrapper getSystemOut () {
+    public PipedWrapper getSystemOut () {
         return systemOut;
     }
 
@@ -658,7 +658,7 @@ public class AppWindow {
      *
      * @postcondition the systemOut has been changed to systemOut
      */
-    public void setSystemOut (PipedInputOutputWrapper systemOut) {
+    public void setSystemOut (PipedWrapper systemOut) {
         this.systemOut = systemOut;
     }
 }
