@@ -30,6 +30,9 @@ public class Grapher {
     private ArrayList<Integer> location;
     
     private String dataLegend;
+    
+    private long startTimeMs;
+
 
     /**
      * Constructs a new Grapher.
@@ -59,6 +62,8 @@ public class Grapher {
         
         setSize(sizeX, sizeY);
         setLocation(locationX, locationY);
+        
+        startTimeMs = System.currentTimeMillis();
     }
 
     /**
@@ -141,14 +146,19 @@ public class Grapher {
     public static void main (String[] args) {
         Grapher g = new Grapher("Test Graph", "x", "y", "parabola", 400, 400, 25, 25);
         JFrame frame = new JFrame();
-        frame.setBounds(Constants.FRAME_LOCATION_X, Constants.FRAME_LOCATION_Y, Constants.FRAME_SIZE_X,
+        frame.setBounds(Constants.FRAME_LOC_X, Constants.FRAME_LOC_Y, Constants.FRAME_SIZE_X,
                 Constants.FRAME_SIZE_Y); // 550 for exporting
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
-
-        
-
+    }
+    
+    /**
+     * Gets the startTimeMs.
+     * @return the startTimeMs
+     */
+    public long getStartTimeMs () {
+        return startTimeMs;
     }
 
 }
