@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -74,6 +76,7 @@ public class AppWindow {
     private SystemOutReader outReader;
     
     private Grapher positionGraph;
+    private Set<Grapher> graphs;
 
     /**
      * Launches the application.
@@ -82,7 +85,7 @@ public class AppWindow {
     public static void main (String[] args) throws Exception {
         window = new AppWindow();
 
-        window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
+        window.getMainFrame().setTitle("Raspberry Pi SSH Deploy"); 
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
         
         window.getMainFrame().setVisible(true);
@@ -163,10 +166,7 @@ public class AppWindow {
      * 
      */
     private void initializeGraph () {
-        positionGraph = new Grapher ("Position vs Time", "Time", "Position", "Pi Bot", 900, 900, 25, 25);
-        mainFrame.getContentPane().add(positionGraph.getChartPanel());
-        
-        
+        graphs = new HashSet<Grapher>();
     }
 
     /**
@@ -480,7 +480,7 @@ public class AppWindow {
     private void displayMainFrame () {
         mainFrame = new JFrame();
         mainFrame.getContentPane().setFont(new Font("Tahoma", Font.PLAIN, 23));
-        mainFrame.setBounds(Constants.FRAME_LOCATION_X, Constants.FRAME_LOCATION_Y, Constants.FRAME_SIZE_X,
+        mainFrame.setBounds(Constants.FRAME_LOC_X, Constants.FRAME_LOC_Y, Constants.FRAME_SIZE_X,
                 Constants.FRAME_SIZE_Y); // 550 for exporting
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.getContentPane().setLayout(null);
@@ -674,5 +674,13 @@ public class AppWindow {
      */
     public void setSystemOut (PipedWrapper systemOut) {
         this.systemOut = systemOut;
+    }
+
+    /**
+     * Adds a given graph to the set of available graphs.
+     * @param grapher the graph to be added
+     */
+    public void addGraph (Grapher grapher) {
+        graphs.add(grapher);
     }
 }

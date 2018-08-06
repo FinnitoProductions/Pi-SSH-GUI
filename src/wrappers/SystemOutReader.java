@@ -5,7 +5,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.List;
 
+import util.Constants;
+import util.StringUtil;
 import window.AppWindow;
 
 /**
@@ -15,14 +18,16 @@ import window.AppWindow;
  */
 public class SystemOutReader {
 
-    private static ArrayList<String> unreadLines;
+    private static ArrayList<String> lines;
+    private static int unreadIndex;
     private PipedWrapper pipedWrapper;
 
     /**
      * Constructs a new SystemOutReader.
      */
     public SystemOutReader () {
-        unreadLines = new ArrayList<String>();
+        lines = new ArrayList<String>();
+        unreadIndex = 0;
         new Thread() {
             public void run () {
                 String prevVal = "";
@@ -32,7 +37,10 @@ public class SystemOutReader {
                         String s = pipedWrapper.readVal();
                         if (!prevVal.equals(s) && !s.equals("")) {
                             prevVal = s;
-                            unreadLines.add(s);
+                            if (StringUtil.startsWithValue(s, Constants.SMART_DASH_PREFIX))
+                                SmartDashboardProcessor.addEntry(smartDashboardParser(s));
+                            else
+                                lines.add(s);
                             System.out.println("NEW VAL: " + prevVal);
                         }
                     } else {
@@ -53,17 +61,36 @@ public class SystemOutReader {
      * Gets the lines which have not yet been extracted.
      * @return the ArrayList containing unextracted lines
      */
-    public ArrayList<String> getUnreadLines () {
-        return unreadLines;
+    public List<String> getUnreadLines () {
+        return lines.subList(unreadIndex, lines.size());
     }
 
     /**
      * Gets the first unread line and removes it from the ArrayList of unread lines.
-     * @return the first unread line, removing it   
+     * @return the first unread line, removing it
      */
     public String getFirstUnread () {
-        if (unreadLines.size() == 0)
+        if (lines.size() == 0 || unreadIndex >= lines.size())
             return "";
-        return unreadLines.remove(0);
+        return lines.get(unreadIndex++);
     }
+
+    /**
+     * Parses a String into a SmartDashboard entry, provided that it has already been validated.
+     * @param s the String containing the SmartDashboard information
+     * @return the entry, after having been parsed
+     */
+    private SmartDashboardEntry smartDashboardParser (String s) {
+        long currentTimeMillis = System.currentTimeMillis();
+        int endKeyIndex = StringUtil.indexOfNumber(s);
+        Double value = new Double(0);
+        if (endKeyIndex == -1) {
+            endKeyIndex = s.length();
+            value = null;
+        }
+        String key = s.substring(Constants.SMART_DASH_PREFIX.length(), endKeyIndex);
+        value = (value == null) ? 0 : Double.parseDouble(s.substring(endKeyIndex));
+        return new SmartDashboardEntry((int) currentTimeMillis, key, value);
+    }
+
 }
