@@ -1,5 +1,7 @@
 package wrappers;
 
+import util.Constants;
+
 /**
  * Represents a single entry to SmartDashboard.
  * @author Finn Frankis
@@ -9,7 +11,7 @@ public class SmartDashboardEntry {
     private double entryTimeMs;
     private String key;
     private double value;
-    
+
     /**
      * Constructs a new SmartDashboardEntry.
      * @param entryTimeMs the time at which the entry was made
@@ -75,5 +77,13 @@ public class SmartDashboardEntry {
      */
     public void setValue (double value) {
         this.value = value;
+    }
+
+    /**
+     * Converts this entry into a String form.
+     * @return this entry, in the format in which it was originally output
+     */
+    public String toString () {
+        return Constants.SMART_DASH_PREFIX + getKey() + " " + getValue();
     }
 }
