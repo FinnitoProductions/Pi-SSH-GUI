@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import window.AppWindow;
 
 /**
- * 
+ * Keeps a running track of lines read from an OutputStream.
  * @author Finn Frankis
  * @version Aug 6, 2018
  */
@@ -42,7 +42,6 @@ public class SystemOutReader {
                     try {
                         Thread.sleep(50l);
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -50,6 +49,10 @@ public class SystemOutReader {
         }.start();
     }
 
+    /**
+     * Gets the lines which have not yet been extracted.
+     * @return the ArrayList containing unextracted lines
+     */
     public ArrayList<String> getUnreadLines () {
         return unreadLines;
     }
