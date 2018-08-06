@@ -81,7 +81,7 @@ public class SSHUtil {
                 if (window.getSystemOut() != null)
                     window.getSystemOut().stop();
                 window.setSystemOut(new PipedInputOutputWrapper());
-                window.getClExec().setOutputStream(window.getOutReader().getOutputStream());
+                window.getClExec().setOutputStream(window.getSystemOut().getOutputStream());
                 
                 if (window.getSSHCommandValue() != null)
                     window.getSSHCommandValue().stop();

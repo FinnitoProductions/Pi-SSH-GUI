@@ -92,12 +92,14 @@ public class PipedInputOutputWrapper {
         @Override
         public void run () {
             try {
-                currentVal = String.valueOf((char)pipedIn.read());
+                BufferedReader br = new BufferedReader(new InputStreamReader(pipedIn));
+                currentVal = String.valueOf(br.ready() ? br.readLine() : "");
             } catch (Exception e) {
                 if (!(e instanceof IOException))
                     e.printStackTrace();
             }
-            System.out.println("READING " + currentVal);
+            if (currentVal != null && !currentVal.equals(""))
+                System.out.println("READING " + currentVal);
 
         }
 
