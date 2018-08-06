@@ -9,6 +9,8 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.xml.ws.Service;
+
 /**
  * Wraps the process of reading from and writing to connected PipedInput and PipedOutput streams. Note that a
  * PipedInputStream is periodically funneled data from a PipedOutputStream, which can be written to like a standard
@@ -22,6 +24,8 @@ public class PipedInputOutputWrapper {
 
     private PipedOutputThread pot;
     private PipedInputThread pit;
+    
+    private ExecutorService service;
 
     public enum PipedType {
         INPUT, OUTPUT;
@@ -38,7 +42,7 @@ public class PipedInputOutputWrapper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ExecutorService service = Executors.newFixedThreadPool(2);
+        service = Executors.newFixedThreadPool(2);
         service.execute(pot = new PipedOutputThread());
         service.execute(pit = new PipedInputThread());
     }
@@ -132,10 +136,13 @@ public class PipedInputOutputWrapper {
     public void writeVal (String s) {
         pot.writeVal(s);
     }
-    
-    public String readVal ()
-    {
+
+    public String readVal () {
         return pit.readVal();
     }
-
+    
+    public void stop ()
+    {
+        service.shutdown();
+    }
 }
