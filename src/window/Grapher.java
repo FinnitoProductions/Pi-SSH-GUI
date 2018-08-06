@@ -147,17 +147,7 @@ public class Grapher {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
 
-        for (double i = 0; i < 100000; i += .1) {
-            g.addPoint(i, Math.pow(i, 2));
-            frame.getContentPane().add(g.getChartPanel());
-            frame.repaint();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+        
 
     }
 

@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.json.JSONException;
@@ -25,9 +26,9 @@ import com.jcraft.jsch.Session;
 
 import util.Constants;
 import util.FileUtil;
-import util.PipedWrapper;
 import util.SSHUtil;
-import util.SystemOutReader;
+import wrappers.PipedWrapper;
+import wrappers.SystemOutReader;
 
 /**
  * Represents the primary window of the app.
@@ -68,7 +69,7 @@ public class AppWindow {
     private static AppWindow window;
 
     private PipedWrapper sshCommandValue;
-    private PipedWrapper systemOut;
+    private PipedWrapper systemOut; 
     
     private SystemOutReader outReader;
     
@@ -85,6 +86,17 @@ public class AppWindow {
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
         
         window.getMainFrame().setVisible(true);
+        
+        for (double i = 0; i < 100000; i += .1) {
+            window.positionGraph.addPoint(i, Math.pow(i, 2));
+            //mainFrame.getContentPane().add(positionGraph.getChartPanel());
+            window.mainFrame.repaint();
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         while (true) {
             if (window.getSession() == null || !window.getSession().isConnected()) {
@@ -132,7 +144,7 @@ public class AppWindow {
 
         displayMainFrame();
 
-        setupFileSelector();
+        /*setupFileSelector();
 
         displayDeployRunBtns();
 
@@ -142,8 +154,8 @@ public class AppWindow {
 
         setupKeyChecking();
         
-        outReader = new SystemOutReader();
-        
+        outReader = new SystemOutReader();*/
+       
         initializeGraph();
     }
 
@@ -151,8 +163,10 @@ public class AppWindow {
      * 
      */
     private void initializeGraph () {
-        positionGraph = new Grapher ("Position vs Time", "Position", "Time", "Pi Bot", 400, 400, 25, 25);
+        positionGraph = new Grapher ("Position vs Time", "Time", "Position", "Pi Bot", 900, 900, 25, 25);
         mainFrame.getContentPane().add(positionGraph.getChartPanel());
+        
+        
     }
 
     /**

@@ -14,6 +14,7 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
 import window.AppWindow;
+import wrappers.PipedWrapper;
 
 /**
  * Contains multiple methods for interfacing with an SSH device.
