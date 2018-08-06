@@ -30,6 +30,7 @@ public class Grapher {
     private ArrayList<Integer> location;
     
     private String dataLegend;
+    private String title;
     
     private long startTimeMs;
 
@@ -44,6 +45,7 @@ public class Grapher {
     public Grapher (String title, String xAxisTitle, String yAxisTitle, String dataLegend, int sizeX, int sizeY,
             int locationX, int locationY) {
         this.dataLegend = dataLegend;
+        this.title = title;
         
         prevData = new ArrayList<List<Double>>();
         prevData.add(new ArrayList<Double>());
@@ -159,6 +161,24 @@ public class Grapher {
      */
     public long getStartTimeMs () {
         return startTimeMs;
+    }
+
+    /**
+     * Gets the title.
+     * @return the title
+     */
+    public String getTitle () {
+        return title;
+    }
+
+    /**
+     * Sets title to a given value.
+     * @param title the title to set
+     *
+     * @postcondition the title has been changed to the newly passed in title
+     */
+    public void setTitle (String title) {
+        this.title = title;
     }
 
 }
