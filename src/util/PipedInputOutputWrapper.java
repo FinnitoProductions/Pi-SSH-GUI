@@ -27,10 +27,6 @@ public class PipedInputOutputWrapper {
     
     private ExecutorService service;
 
-    public enum PipedType {
-        INPUT, OUTPUT;
-    }
-
     /**
      * Constructs a new PipedInputOutputWrapper.
      */
