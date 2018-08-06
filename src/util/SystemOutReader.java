@@ -56,4 +56,14 @@ public class SystemOutReader {
     public ArrayList<String> getUnreadLines () {
         return unreadLines;
     }
+
+    /**
+     * Gets the first unread line and removes it from the ArrayList of unread lines.
+     * @return the first unread line, removing it
+     */
+    public String getFirstUnread () {
+        if (unreadLines.size() == 0)
+            return "";
+        return unreadLines.remove(0);
+    }
 }
