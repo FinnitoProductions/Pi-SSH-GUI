@@ -91,15 +91,13 @@ public class PipedInputOutputWrapper {
 
         @Override
         public void run () {
-            if (currentVal != null) {
-                try {
-                    System.out.println("READING " + currentVal);
-                    currentVal = new Integer(pipedIn.read()).toString();
-                } catch (Exception e) {
-                    if (!(e instanceof IOException))
-                        e.printStackTrace();
-                }
+            try {
+                currentVal = String.valueOf((char)pipedIn.read());
+            } catch (Exception e) {
+                if (!(e instanceof IOException))
+                    e.printStackTrace();
             }
+            System.out.println("READING " + currentVal);
 
         }
 
