@@ -71,6 +71,8 @@ public class AppWindow {
     private PipedInputOutputWrapper systemOut;
     
     private SystemOutReader outReader;
+    
+    private Grapher positionGraph;
 
     /**
      * Launches the application.
@@ -141,6 +143,16 @@ public class AppWindow {
         setupKeyChecking();
         
         outReader = new SystemOutReader();
+        
+        initializeGraph();
+    }
+
+    /**
+     * 
+     */
+    private void initializeGraph () {
+        positionGraph = new Grapher ("Position vs Time", "Position", "Time", "Pi Bot", 400, 400, 25, 25);
+        mainFrame.getContentPane().add(positionGraph.getChartPanel());
     }
 
     /**
