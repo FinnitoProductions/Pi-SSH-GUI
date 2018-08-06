@@ -13,8 +13,8 @@ public class Constants {
     public static String PI_IP = "192.168.178.63";
     public static int PI_PORT = 22;
 
-    public static final int FRAME_LOCATION_X = 100;
-    public static final int FRAME_LOCATION_Y = 100;
+    public static final int FRAME_LOC_X = 100;
+    public static final int FRAME_LOC_Y = 100;
     public static final int FRAME_SIZE_X = 766;
     public static final int FRAME_SIZE_Y = 600;
 
@@ -32,4 +32,10 @@ public class Constants {
     
     public static final int GRAPH_X_INDEX = 0;
     public static final int GRAPH_Y_INDEX = 1;
+    
+    public static final String SMART_DASH_PREFIX = "SD: ";
+    public static final int GRAPH_SIZE_X = 400;
+    public static final int GRAPH_SIZE_Y = 400;
+    public static final int GRAPH_LOC_X = 25;
+    public static final int GRAPH_LOC_Y = 25;
 }
