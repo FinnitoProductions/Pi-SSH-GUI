@@ -3,22 +3,31 @@ package window;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
+import java.awt.Insets;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent.EventType;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +40,7 @@ import util.FileUtil;
 import util.SSHUtil;
 import wrappers.PipedWrapper;
 import wrappers.SystemOutReader;
+import javax.swing.JScrollBar;
 
 /**
  * Represents the primary window of the app.
@@ -46,7 +56,10 @@ public class AppWindow {
     private JButton btnDeploy;
     private JButton btnRun;
     private JButton btnStop;
-
+    private JButton homeButton;
+    private JButton graphButton;
+    private JButton usbButton;
+    
     private Session session;
 
     private File fileTransfer;
@@ -86,10 +99,11 @@ public class AppWindow {
 
         window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
-
+        
+        
         window.getMainFrame().setVisible(true);
 
-        for (double i = 0; i < 100000; i += .1) {
+        /*for (double i = 0; i < 100000; i += .1) {
             window.positionGraph.addPoint(i, Math.pow(i, 2));
             // mainFrame.getContentPane().add(positionGraph.getChartPanel());
             window.mainFrame.repaint();
@@ -98,9 +112,9 @@ public class AppWindow {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
 
-        while (true) {
+        /*while (true) {
             if (window.getSession() == null || !window.getSession().isConnected()) {
                 try {
                     SSHUtil.connectSSH(AppWindow.getInstance());
@@ -115,7 +129,7 @@ public class AppWindow {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     /**
@@ -166,6 +180,58 @@ public class AppWindow {
          */
 
         initializeGraph();
+
+        homeButton = setupImageButton(Constants.HOME_ICON_PATH, new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent e) {
+
+                
+            }});
+        homeButton.setBounds(0, 54, 61, 75);
+        
+        graphButton = setupImageButton(Constants.GRAPH_ICON_PATH, new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent e) {
+
+                
+            }});
+        graphButton.setBounds(0, 130, 61, 75);
+        
+
+        usbButton = setupImageButton(Constants.USB_ICON_PATH, new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent e) {
+
+                
+            }});
+        usbButton.setBounds(0, 206, 61, 75);
+        
+
+    }
+    
+    private JButton setupImageButton (String fileLocation, ActionListener al)
+    {
+        try {
+            JButton b = new JButton(new ImageIcon(
+                    ImageIO.read(getClass().getResource(fileLocation)).getScaledInstance(50, 50, Image.SCALE_DEFAULT)));
+            b.setVisible(true);;
+            // to remote the spacing between the image and button's borders
+            b.setMargin(new Insets(0, 0, 0, 0));
+            // to remove the border
+            b.setBorder(null);
+            b.setContentAreaFilled(false);
+            b.addActionListener(al);
+            mainFrame.getContentPane().add(b);
+            return b;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     /**

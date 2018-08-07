@@ -23,6 +23,10 @@ public class Constants {
     public static final String EXT_DIR_NAME = "pi-ssh-app";
     public static final String EXT_DIR_PATH = USER_HOME + EXT_DIR_NAME;
     public static final String EXT_K_BIND_PATH = EXT_DIR_PATH + File.separator + "bindings.json";
+    
+    public static final String HOME_ICON_PATH = "/images/homeicon.png";
+    public static final String GRAPH_ICON_PATH = "/images/graphicon.jpg";
+    public static final String USB_ICON_PATH = "/images/usbicon.png";
 
     public static final String K_BIND_UP_KEY = "up";
     public static final String K_BIND_DOWN_KEY = "down";
@@ -38,4 +42,5 @@ public class Constants {
     public static final int GRAPH_SIZE_Y = 400;
     public static final int GRAPH_LOC_X = 25;
     public static final int GRAPH_LOC_Y = 25;
+    
 }
