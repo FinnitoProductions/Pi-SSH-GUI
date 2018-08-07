@@ -170,6 +170,7 @@ public class AppWindow {
         displayMainFrame();
 
         setupFileSelector();
+        
         displayDeployRunBtns();
          
         setupWarningLabels();
@@ -213,6 +214,7 @@ public class AppWindow {
         usbButton.setBounds(0, 206, 61, 75);
         
         hideAllPageDependentContainers();
+        showPage (PageType.HOME);
 
     }
 
