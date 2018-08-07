@@ -41,6 +41,10 @@ public class Grapher {
      * @param xAxisTitle the title of the x-axis
      * @param yAxisTitle the title of the y-axis
      * @param dataLegend the name of the data being graphed (for the legend)
+     * @param sizeX the size of the graph, in the x-direction
+     * @param sizeY the size of the graph, in the y-direction
+     * @param locationX the x-position of the graph
+     * @param locationY the y-position of the graph
      */
     public Grapher (String title, String xAxisTitle, String yAxisTitle, String dataLegend, int sizeX, int sizeY,
             int locationX, int locationY) {
