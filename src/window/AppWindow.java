@@ -1,6 +1,7 @@
 package window;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
@@ -14,7 +15,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -38,6 +41,7 @@ import com.jcraft.jsch.Session;
 import util.Constants;
 import util.FileUtil;
 import util.SSHUtil;
+import util.SetUtil;
 import wrappers.PipedWrapper;
 import wrappers.SystemOutReader;
 import javax.swing.JScrollBar;
@@ -59,7 +63,7 @@ public class AppWindow {
     private JButton homeButton;
     private JButton graphButton;
     private JButton usbButton;
-    
+
     private Session session;
 
     private File fileTransfer;
@@ -91,6 +95,17 @@ public class AppWindow {
     private Grapher positionGraph;
     private Set<Grapher> graphs;
 
+    private Map<PageType, Set<Container>> pageContents;
+
+    /**
+     * 
+     * @author Finn Frankis
+     * @version Aug 7, 2018
+     */
+    public enum PageType {
+        HOME, GRAPHS, BINDINGS
+    }
+
     /**
      * Launches the application.
      */
@@ -99,37 +114,22 @@ public class AppWindow {
 
         window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
-        
-        
+
         window.getMainFrame().setVisible(true);
 
-        /*for (double i = 0; i < 100000; i += .1) {
-            window.positionGraph.addPoint(i, Math.pow(i, 2));
-            // mainFrame.getContentPane().add(positionGraph.getChartPanel());
-            window.mainFrame.repaint();
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }*/
+        /*
+         * for (double i = 0; i < 100000; i += .1) { window.positionGraph.addPoint(i, Math.pow(i, 2)); //
+         * mainFrame.getContentPane().add(positionGraph.getChartPanel()); window.mainFrame.repaint(); try {
+         * Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); } }
+         */
 
-        /*while (true) {
-            if (window.getSession() == null || !window.getSession().isConnected()) {
-                try {
-                    SSHUtil.connectSSH(AppWindow.getInstance());
-                } catch (Exception e) {
-                    window.getLblSshConnected().setText("Pi Not Connected");
-                    window.getLblSshConnected().setForeground(Color.RED);
-                }
-            }
-            try {
-                Thread.sleep(1000l);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }*/
+        /*
+         * while (true) { if (window.getSession() == null || !window.getSession().isConnected()) { try {
+         * SSHUtil.connectSSH(AppWindow.getInstance()); } catch (Exception e) {
+         * window.getLblSshConnected().setText("Pi Not Connected");
+         * window.getLblSshConnected().setForeground(Color.RED); } } try { Thread.sleep(1000l); } catch
+         * (InterruptedException e) { // TODO Auto-generated catch block e.printStackTrace(); } }
+         */
     }
 
     /**
@@ -161,23 +161,24 @@ public class AppWindow {
      * Initializes the contents of the frame.
      */
     private void initialize () {
+        pageContents = new HashMap<PageType, Set<Container>>();
+        for (PageType p : PageType.values())
+            pageContents.put(p, new HashSet<Container>());
+
         setupExternalFiles();
 
         displayMainFrame();
 
-        /*
-         * setupFileSelector();
-         * 
-         * displayDeployRunBtns();
-         * 
-         * setupWarningLabels();
-         * 
-         * setupKeyBindings();
-         * 
-         * setupKeyChecking();
-         * 
-         * outReader = new SystemOutReader();
-         */
+        setupFileSelector();
+        displayDeployRunBtns();
+         
+        setupWarningLabels();
+     
+        setupKeyBindings();
+     
+        setupKeyChecking();
+         
+        //outReader = new SystemOutReader();
 
         initializeGraph();
 
@@ -185,35 +186,52 @@ public class AppWindow {
 
             @Override
             public void actionPerformed (ActionEvent e) {
-
-                
-            }});
+                hideAllPageDependentContainers();
+                showPage(PageType.HOME);
+            }
+        });
         homeButton.setBounds(0, 54, 61, 75);
-        
+
         graphButton = setupImageButton(Constants.GRAPH_ICON_PATH, new ActionListener() {
 
             @Override
             public void actionPerformed (ActionEvent e) {
-
-                
-            }});
+                hideAllPageDependentContainers();
+                showPage(PageType.GRAPHS);
+            }
+        });
         graphButton.setBounds(0, 130, 61, 75);
-        
 
         usbButton = setupImageButton(Constants.USB_ICON_PATH, new ActionListener() {
 
             @Override
             public void actionPerformed (ActionEvent e) {
-
-                
-            }});
+                hideAllPageDependentContainers();
+                showPage(PageType.BINDINGS);
+            }
+        });
         usbButton.setBounds(0, 206, 61, 75);
         
+        hideAllPageDependentContainers();
 
     }
-    
-    private JButton setupImageButton (String fileLocation, ActionListener al)
+
+    private void showPage (PageType pt)
     {
+        for (Container c : pageContents.get(pt))
+            c.setVisible(true);
+    }
+    
+    
+    private void hideAllPageDependentContainers () {
+        for (PageType p : pageContents.keySet()) {
+            for (Container c : pageContents.get(p)) {
+                c.setVisible(false);
+            }
+        }
+    }
+
+    private JButton setupImageButton (String fileLocation, ActionListener al) {
         try {
             JButton b = new JButton(new ImageIcon(
                     ImageIO.read(getClass().getResource(fileLocation)).getScaledInstance(50, 50, Image.SCALE_DEFAULT)));
@@ -284,6 +302,12 @@ public class AppWindow {
      * 
      */
     private void setupKeyBindings () {
+
+        lblKeyBindings = new JLabel("Key Bindings:");
+        lblKeyBindings.setForeground(Color.ORANGE);
+        lblKeyBindings.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        lblKeyBindings.setBounds(77, 51, 157, 32);
+        mainFrame.getContentPane().add(lblKeyBindings);
         try {
             String fileContents = FileUtil.getStringFromExternalFile(Constants.EXT_K_BIND_PATH);
 
@@ -296,11 +320,11 @@ public class AppWindow {
         JLabel lblUpArrow = new JLabel("Up:");
         lblUpArrow.setForeground(Color.ORANGE);
         lblUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        lblUpArrow.setBounds(143, 151, 26, 19);
+        lblUpArrow.setBounds(77, 88, 26, 19);
         mainFrame.getContentPane().add(lblUpArrow);
 
         upArrowField = new JTextField();
-        upArrowField.setBounds(182, 148, 43, 19);
+        upArrowField.setBounds(144, 88, 43, 19);
         mainFrame.getContentPane().add(upArrowField);
         upArrowField.setColumns(2);
         try {
@@ -312,7 +336,7 @@ public class AppWindow {
 
         JButton btnSaveUpArrow = new JButton("Save");
         btnSaveUpArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        btnSaveUpArrow.setBounds(236, 150, 61, 19);
+        btnSaveUpArrow.setBounds(211, 90, 61, 19);
         mainFrame.getContentPane().add(btnSaveUpArrow);
         btnSaveUpArrow.addActionListener(new ActionListener() {
 
@@ -331,7 +355,7 @@ public class AppWindow {
         lblDownArrow = new JLabel("Down:");
         lblDownArrow.setForeground(Color.ORANGE);
         lblDownArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        lblDownArrow.setBounds(37, 185, 56, 19);
+        lblDownArrow.setBounds(77, 128, 56, 19);
         mainFrame.getContentPane().add(lblDownArrow);
 
         downArrowField = new JTextField();
@@ -343,12 +367,12 @@ public class AppWindow {
         }
 
         downArrowField.setColumns(2);
-        downArrowField.setBounds(102, 185, 43, 19);
+        downArrowField.setBounds(144, 128, 43, 19);
         mainFrame.getContentPane().add(downArrowField);
 
         JButton btnSaveDownArrow = new JButton("Save");
         btnSaveDownArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        btnSaveDownArrow.setBounds(187, 185, 61, 19);
+        btnSaveDownArrow.setBounds(211, 130, 61, 19);
         mainFrame.getContentPane().add(btnSaveDownArrow);
 
         btnSaveDownArrow.addActionListener(new ActionListener() {
@@ -368,7 +392,7 @@ public class AppWindow {
         lblLeftArrow = new JLabel("Left:");
         lblLeftArrow.setForeground(Color.ORANGE);
         lblLeftArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        lblLeftArrow.setBounds(37, 222, 56, 19);
+        lblLeftArrow.setBounds(77, 167, 56, 19);
         mainFrame.getContentPane().add(lblLeftArrow);
 
         leftArrowField = new JTextField();
@@ -379,12 +403,12 @@ public class AppWindow {
             e1.printStackTrace();
         }
         leftArrowField.setColumns(2);
-        leftArrowField.setBounds(102, 222, 43, 19);
+        leftArrowField.setBounds(144, 164, 43, 19);
         mainFrame.getContentPane().add(leftArrowField);
 
         JButton btnSaveLeftArrow = new JButton("Save");
         btnSaveLeftArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        btnSaveLeftArrow.setBounds(187, 222, 61, 19);
+        btnSaveLeftArrow.setBounds(211, 164, 61, 19);
         mainFrame.getContentPane().add(btnSaveLeftArrow);
 
         btnSaveLeftArrow.addActionListener(new ActionListener() {
@@ -404,7 +428,7 @@ public class AppWindow {
         lblRightArrow = new JLabel("Right:");
         lblRightArrow.setForeground(Color.ORANGE);
         lblRightArrow.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        lblRightArrow.setBounds(37, 259, 56, 19);
+        lblRightArrow.setBounds(77, 207, 56, 19);
         mainFrame.getContentPane().add(lblRightArrow);
 
         rightArrowField = new JTextField();
@@ -415,12 +439,12 @@ public class AppWindow {
             e1.printStackTrace();
         }
         rightArrowField.setColumns(2);
-        rightArrowField.setBounds(102, 259, 43, 19);
+        rightArrowField.setBounds(144, 204, 43, 19);
         mainFrame.getContentPane().add(rightArrowField);
 
         JButton btnSaveRightArrow = new JButton("Save");
         btnSaveRightArrow.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        btnSaveRightArrow.setBounds(187, 259, 61, 19);
+        btnSaveRightArrow.setBounds(211, 204, 61, 19);
         mainFrame.getContentPane().add(btnSaveRightArrow);
 
         btnSaveRightArrow.addActionListener(new ActionListener() {
@@ -436,6 +460,12 @@ public class AppWindow {
             }
 
         });
+
+        SetUtil.addMultiple(pageContents.get(PageType.BINDINGS), lblKeyBindings,
+                lblUpArrow, upArrowField, btnSaveUpArrow, 
+                lblDownArrow, downArrowField, btnSaveDownArrow,
+                lblLeftArrow, leftArrowField, btnSaveLeftArrow,
+                lblRightArrow, rightArrowField, btnSaveRightArrow);
     }
 
     /**
@@ -453,12 +483,6 @@ public class AppWindow {
         getErrorLabel().setBounds(21, 444, 698, 26);
         getErrorLabel().setForeground(new Color(128, 0, 0));
         mainFrame.getContentPane().add(getErrorLabel());
-
-        lblKeyBindings = new JLabel("Key Bindings:");
-        lblKeyBindings.setForeground(Color.ORANGE);
-        lblKeyBindings.setFont(new Font("Tahoma", Font.PLAIN, 24));
-        lblKeyBindings.setBounds(153, 109, 157, 32);
-        mainFrame.getContentPane().add(lblKeyBindings);
     }
 
     /**
@@ -499,6 +523,7 @@ public class AppWindow {
         btnStop.setBounds(643, 482, 78, 35);
         mainFrame.getContentPane().add(btnStop);
 
+        SetUtil.addMultiple(pageContents.get(PageType.HOME), btnStop, btnRun, btnDeploy);
     }
 
     /**
@@ -540,9 +565,11 @@ public class AppWindow {
         mainFrame.getContentPane().add(btnSelectFile);
 
         fileTextField = new JTextField();
-        fileTextField.setBounds(102, 50, 397, 38);
+        fileTextField.setBounds(100, 50, 397, 38);
         mainFrame.getContentPane().add(fileTextField);
         fileTextField.setColumns(10);
+
+        SetUtil.addMultiple(pageContents.get(PageType.HOME), btnSelectFile, fileTextField);
     }
 
     /**

@@ -99,9 +99,6 @@ public class Grapher {
 
         final double[][] data = getDataArr();
 
-        System.out.println(Arrays.toString(data[0]));
-        System.out.println(Arrays.toString(data[1]));
-        System.out.println();
 
         chart.updateXYSeries(dataLegend, data[Constants.GRAPH_X_INDEX], data[Constants.GRAPH_Y_INDEX], null);
 
