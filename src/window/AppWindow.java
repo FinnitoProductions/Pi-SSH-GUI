@@ -34,6 +34,7 @@ import javax.swing.event.DocumentEvent.EventType;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.knowm.xchart.XChartPanel;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.Session;
@@ -45,6 +46,7 @@ import util.SetUtil;
 import wrappers.PipedWrapper;
 import wrappers.SystemOutReader;
 import javax.swing.JScrollBar;
+import javax.swing.JRadioButton;
 
 /**
  * Represents the primary window of the app.
@@ -92,7 +94,7 @@ public class AppWindow {
 
     private SystemOutReader outReader;
 
-    private Grapher positionGraph;
+    private Grapher currentGraph;
     private Set<Grapher> graphs;
 
     private Map<PageType, Set<Container>> pageContents;
@@ -170,19 +172,27 @@ public class AppWindow {
         displayMainFrame();
 
         setupFileSelector();
-        
+
         displayDeployRunBtns();
-         
+
         setupWarningLabels();
-     
+
         setupKeyBindings();
-     
+
         setupKeyChecking();
-         
-        //outReader = new SystemOutReader();
+
+        // outReader = new SystemOutReader();
 
         initializeGraph();
 
+        setupPages();
+
+    }
+
+    /**
+     * 
+     */
+    private void setupPages () {
         homeButton = setupImageButton(Constants.HOME_ICON_PATH, new ActionListener() {
 
             @Override
@@ -212,19 +222,16 @@ public class AppWindow {
             }
         });
         usbButton.setBounds(0, 206, 61, 75);
-        
-        hideAllPageDependentContainers();
-        showPage (PageType.HOME);
 
+        hideAllPageDependentContainers();
+        showPage(PageType.HOME);
     }
 
-    private void showPage (PageType pt)
-    {
+    private void showPage (PageType pt) {
         for (Container c : pageContents.get(pt))
             c.setVisible(true);
     }
-    
-    
+
     private void hideAllPageDependentContainers () {
         for (PageType p : pageContents.keySet()) {
             for (Container c : pageContents.get(p)) {
@@ -259,6 +266,11 @@ public class AppWindow {
      */
     private void initializeGraph () {
         graphs = new HashSet<Grapher>();
+        currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
+                Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y);
+        Container c = currentGraph.getChartPanel();
+        mainFrame.getContentPane().add(c);
+        pageContents.get(PageType.GRAPHS).add(c);
     }
 
     /**
@@ -269,7 +281,8 @@ public class AppWindow {
             @Override
             public boolean dispatchKeyEvent (final KeyEvent e) {
                 try {
-                    if (getSession().isConnected() && getClExec().isConnected()) {
+                    if (getSession() != null && getSession().isConnected() && getClExec() != null
+                            && getClExec().isConnected()) {
                         if (e.getID() == KeyEvent.KEY_PRESSED) {
                             if (e.getKeyCode() == KeyEvent.VK_UP) {
                                 getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_UP_KEY));
@@ -464,7 +477,7 @@ public class AppWindow {
         });
 
         SetUtil.addMultiple(pageContents.get(PageType.BINDINGS), lblKeyBindings,
-                lblUpArrow, upArrowField, btnSaveUpArrow, 
+                lblUpArrow, upArrowField, btnSaveUpArrow,
                 lblDownArrow, downArrowField, btnSaveDownArrow,
                 lblLeftArrow, leftArrowField, btnSaveLeftArrow,
                 lblRightArrow, rightArrowField, btnSaveRightArrow);
@@ -526,6 +539,26 @@ public class AppWindow {
         mainFrame.getContentPane().add(btnStop);
 
         SetUtil.addMultiple(pageContents.get(PageType.HOME), btnStop, btnRun, btnDeploy);
+    }
+
+    private void updateGraphList () {
+        int startPositionY = 105;
+        int deltaPositionY = 30;
+        int currentPos = 0;
+        for (Grapher g : graphs) {
+            JRadioButton rdbtnGraph = new JRadioButton(g.getTitle());
+            rdbtnGraph.setBounds(71, startPositionY + deltaPositionY * currentPos++, 201, 35);
+            rdbtnGraph.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed (ActionEvent arg0) {
+
+                }
+
+            });
+            window.getMainFrame().getContentPane().add(rdbtnGraph);
+            pageContents.get(PageType.GRAPHS).add(rdbtnGraph);
+        }
     }
 
     /**

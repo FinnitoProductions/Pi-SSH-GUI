@@ -38,9 +38,9 @@ public class Constants {
     public static final int GRAPH_Y_INDEX = 1;
     
     public static final String SMART_DASH_PREFIX = "SD: ";
-    public static final int GRAPH_SIZE_X = 400;
+    public static final int GRAPH_SIZE_X = 425;
     public static final int GRAPH_SIZE_Y = 400;
-    public static final int GRAPH_LOC_X = 25;
-    public static final int GRAPH_LOC_Y = 25;
+    public static final int GRAPH_LOC_X = 275;
+    public static final int GRAPH_LOC_Y = 50;
     
 }
