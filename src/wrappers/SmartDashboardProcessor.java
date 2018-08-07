@@ -15,20 +15,18 @@ import window.Grapher;
  * @version Aug 6, 2018
  */
 public class SmartDashboardProcessor {
-    public static Map<String, Grapher> existingKeys = new HashMap<String, Grapher>();
-
+    
     /**
      * Adds an entry to be graphed.
      * @param entry the entry to be added
      */
     public static void addEntry (SmartDashboardEntry entry) {
-        if (!existingKeys.containsKey(entry.getKey()))
-        {
-            existingKeys.put(entry.getKey(), new Grapher(entry.getKey(), "Time", "Value", "Pi Bot",
+        AppWindow window = AppWindow.getInstance();
+        if (!window.containsKey(entry.getKey())) {
+            window.addGraph(new Grapher(entry.getKey(), "Time", "Value", "Pi Bot",
                     Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y, Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y));
-            AppWindow.getInstance().addGraph(existingKeys.get(entry.getKey()));
-        }   
-        Grapher graph = existingKeys.get(entry.getKey());
+        }
+        Grapher graph = window.getGraph(entry.getKey());
         graph.addPoint(entry.getEntryTimeMs() - graph.getStartTimeMs(), entry.getValue());
     }
 }

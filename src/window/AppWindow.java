@@ -71,28 +71,27 @@ public class AppWindow {
     private static AppWindow window;
 
     private PipedWrapper sshCommandValue;
-    private PipedWrapper systemOut; 
-    
+    private PipedWrapper systemOut;
+
     private SystemOutReader outReader;
-    
+
     private Grapher positionGraph;
     private Set<Grapher> graphs;
 
     /**
      * Launches the application.
-     * @throws Exception
      */
-    public static void main (String[] args) throws Exception {
+    public static void main (String[] args) {
         window = new AppWindow();
 
-        window.getMainFrame().setTitle("Raspberry Pi SSH Deploy"); 
+        window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
-        
+
         window.getMainFrame().setVisible(true);
-        
+
         for (double i = 0; i < 100000; i += .1) {
             window.positionGraph.addPoint(i, Math.pow(i, 2));
-            //mainFrame.getContentPane().add(positionGraph.getChartPanel());
+            // mainFrame.getContentPane().add(positionGraph.getChartPanel());
             window.mainFrame.repaint();
             try {
                 Thread.sleep(5);
@@ -110,7 +109,12 @@ public class AppWindow {
                     window.getLblSshConnected().setForeground(Color.RED);
                 }
             }
-            Thread.sleep(1000l);
+            try {
+                Thread.sleep(1000l);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 
@@ -147,18 +151,20 @@ public class AppWindow {
 
         displayMainFrame();
 
-        /*setupFileSelector();
+        /*
+         * setupFileSelector();
+         * 
+         * displayDeployRunBtns();
+         * 
+         * setupWarningLabels();
+         * 
+         * setupKeyBindings();
+         * 
+         * setupKeyChecking();
+         * 
+         * outReader = new SystemOutReader();
+         */
 
-        displayDeployRunBtns();
-
-        setupWarningLabels();
-
-        setupKeyBindings();
-
-        setupKeyChecking();
-        
-        outReader = new SystemOutReader();*/
-       
         initializeGraph();
     }
 
@@ -414,7 +420,7 @@ public class AppWindow {
         getBtnRun().setBounds(544, 482, 78, 35);
         getBtnRun().setEnabled(false);
         mainFrame.getContentPane().add(getBtnRun());
-        
+
         btnStop = new JButton("Stop");
         btnStop.addActionListener(new ActionListener() {
             public void actionPerformed (ActionEvent arg0) {
@@ -426,8 +432,7 @@ public class AppWindow {
         btnStop.setEnabled(false);
         btnStop.setBounds(643, 482, 78, 35);
         mainFrame.getContentPane().add(btnStop);
-       
-        
+
     }
 
     /**
@@ -598,6 +603,10 @@ public class AppWindow {
         AppWindow.getInstance().clExec = clExec;
     }
 
+    /**
+     * Gets this instance of AppWindow.
+     * @return the instance of the singleton AppWindow
+     */
     public static AppWindow getInstance () {
         if (window == null)
             window = new AppWindow();
@@ -682,5 +691,35 @@ public class AppWindow {
      */
     public void addGraph (Grapher grapher) {
         graphs.add(grapher);
+    }
+
+    /**
+     * Gets the set of all used graphs.
+     * @return the set of used graphs
+     */
+    public Set<Grapher> getGraphs () {
+        return graphs;
+    }
+
+    /**
+     * Determines whether the window contains a graph with the given title.
+     * @param s the title of the graph to be checked for
+     * @return true if the window contains a graph with the title s; false otherwise
+     */
+    public boolean containsKey (String s) {
+        return getGraph(s) != null;
+    }
+
+    /**
+     * Gets the graph with the given title.
+     * @param s the title to check for
+     * @return the graph with the given title; null if nonexistent
+     */
+    public Grapher getGraph (String s) {
+        for (Grapher g : graphs) {
+            if (g != null && g.getTitle().equals(s))
+                return g;
+        }
+        return null;
     }
 }
