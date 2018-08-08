@@ -80,10 +80,23 @@ public class AppWindow {
     private JLabel lblDownArrow;
     private JLabel lblLeftArrow;
     private JLabel lblRightArrow;
+    private JLabel lblW;
+    private JLabel lblA;
+    private JLabel lblS;
+    private JLabel lblD;
+    private JLabel lblO;
+    private JLabel lblQ;
+    
 
     private JTextField downArrowField;
     private JTextField leftArrowField;
     private JTextField rightArrowField;
+    private JTextField wField;
+    private JTextField aField;
+    private JTextField sField;
+    private JTextField dField;
+    private JTextField oField;
+    private JTextField qField;
 
     private JSONObject jo;
 
@@ -125,13 +138,13 @@ public class AppWindow {
          * Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); } }
          */
 
-        /*
-         * while (true) { if (window.getSession() == null || !window.getSession().isConnected()) { try {
-         * SSHUtil.connectSSH(AppWindow.getInstance()); } catch (Exception e) {
-         * window.getLblSshConnected().setText("Pi Not Connected");
-         * window.getLblSshConnected().setForeground(Color.RED); } } try { Thread.sleep(1000l); } catch
-         * (InterruptedException e) { // TODO Auto-generated catch block e.printStackTrace(); } }
-         */
+        
+         while (true) { if (window.getSession() == null || !window.getSession().isConnected()) { try {
+         SSHUtil.connectSSH(AppWindow.getInstance()); } catch (Exception e) {
+         window.getLblSshConnected().setText("Pi Not Connected");
+         window.getLblSshConnected().setForeground(Color.RED); } } try { Thread.sleep(1000l); } catch
+         (InterruptedException e) {  e.printStackTrace(); } }
+         
     }
 
     /**
@@ -298,7 +311,38 @@ public class AppWindow {
                             }
                             if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
                                 getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_RIGHT_KEY));
-
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_W) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_W_KEY));
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_A) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_A_KEY));
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_S) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_S_KEY));
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_D) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_D_KEY));
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_Q) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_O) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_O_KEY));
+                            }
+                        }
+                        if (e.getID() == KeyEvent.KEY_RELEASED) {
+                            if (e.getKeyCode() == KeyEvent.VK_W) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_A) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_S) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
+                            }
+                            if (e.getKeyCode() == KeyEvent.VK_D) {
+                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
                             }
                         }
                     }
@@ -475,12 +519,234 @@ public class AppWindow {
             }
 
         });
+        
+        lblW = new JLabel("W:");
+        lblW.setForeground(Color.ORANGE);
+        lblW.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lblW.setBounds(77, 247, 56, 19);
+        mainFrame.getContentPane().add(lblW);
+
+        wField = new JTextField();
+        try {
+            wField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_W_KEY));
+        } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        wField.setColumns(2);
+        wField.setBounds(144, 247, 43, 19);
+        mainFrame.getContentPane().add(wField);
+
+        JButton btnSaveW = new JButton("Save");
+        btnSaveW.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        btnSaveW.setBounds(211, 247, 61, 19);
+        mainFrame.getContentPane().add(btnSaveW);
+
+        btnSaveW.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                try {
+                    jo.put(Constants.K_BIND_W_KEY, wField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        
+        lblA = new JLabel("A:");
+        lblA.setForeground(Color.ORANGE);
+        lblA.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lblA.setBounds(77, 290, 56, 19);
+        mainFrame.getContentPane().add(lblA);
+
+        aField = new JTextField();
+        try {
+            aField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_A_KEY));
+        } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        aField.setColumns(2);
+        aField.setBounds(144, 290, 43, 19);
+        mainFrame.getContentPane().add(aField);
+
+        JButton btnSaveA = new JButton("Save");
+        btnSaveA.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        btnSaveA.setBounds(211, 290, 61, 19);
+        mainFrame.getContentPane().add(btnSaveA);
+
+        btnSaveA.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                try {
+                    jo.put(Constants.K_BIND_A_KEY, aField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        
+        lblS = new JLabel("S:");
+        lblS.setForeground(Color.ORANGE);
+        lblS.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lblS.setBounds(77, 333, 56, 19);
+        mainFrame.getContentPane().add(lblS);
+
+        sField = new JTextField();
+        try {
+            sField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_S_KEY));
+        } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        sField.setColumns(2);
+        sField.setBounds(144, 333, 43, 19);
+        mainFrame.getContentPane().add(sField);
+
+        JButton btnSaveS = new JButton("Save");
+        btnSaveS.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        btnSaveS.setBounds(211, 333, 61, 19);
+        mainFrame.getContentPane().add(btnSaveS);
+
+        btnSaveS.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                try {
+                    jo.put(Constants.K_BIND_S_KEY, sField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        
+        lblD = new JLabel("D:");
+        lblD.setForeground(Color.ORANGE);
+        lblD.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lblD.setBounds(77, 376, 56, 19);
+        mainFrame.getContentPane().add(lblD);
+
+        dField = new JTextField();
+        try {
+            dField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_D_KEY));
+        } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        dField.setColumns(2);
+        dField.setBounds(144, 376, 43, 19);
+        mainFrame.getContentPane().add(dField);
+
+        JButton btnSaveD = new JButton("Save");
+        btnSaveD.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        btnSaveD.setBounds(211, 376, 61, 19);
+        mainFrame.getContentPane().add(btnSaveD);
+
+        btnSaveD.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                try {
+                    jo.put(Constants.K_BIND_D_KEY, dField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        
+        lblO = new JLabel("O:");
+        lblO.setForeground(Color.ORANGE);
+        lblO.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lblO.setBounds(77, 376+43, 56, 19);
+        mainFrame.getContentPane().add(lblO);
+
+        oField = new JTextField();
+        try {
+            oField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_O_KEY));
+        } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        oField.setColumns(2);
+        oField.setBounds(144, 376+43, 43, 19);
+        mainFrame.getContentPane().add(oField);
+
+        JButton btnSaveO = new JButton("Save");
+        btnSaveO.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        btnSaveO.setBounds(211, 376+43, 61, 19);
+        mainFrame.getContentPane().add(btnSaveO);
+
+        btnSaveO.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                try {
+                    jo.put(Constants.K_BIND_O_KEY, oField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        
+        lblQ = new JLabel("Q:");
+        lblQ.setForeground(Color.ORANGE);
+        lblQ.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lblQ.setBounds(77, 376 + 43*2, 56, 19);
+        mainFrame.getContentPane().add(lblQ);
+
+        qField = new JTextField();
+        try {
+            qField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_Q_KEY));
+        } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        qField.setColumns(2);
+        qField.setBounds(144, 376+43*2, 43, 19);
+        mainFrame.getContentPane().add(qField);
+
+        JButton btnSaveQ = new JButton("Save");
+        btnSaveQ.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        btnSaveQ.setBounds(211, 376+43*2, 61, 19);
+        mainFrame.getContentPane().add(btnSaveQ);
+
+        btnSaveQ.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                try {
+                    jo.put(Constants.K_BIND_Q_KEY, qField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
 
         SetUtil.addMultiple(pageContents.get(PageType.BINDINGS), lblKeyBindings,
                 lblUpArrow, upArrowField, btnSaveUpArrow,
                 lblDownArrow, downArrowField, btnSaveDownArrow,
                 lblLeftArrow, leftArrowField, btnSaveLeftArrow,
-                lblRightArrow, rightArrowField, btnSaveRightArrow);
+                lblRightArrow, rightArrowField, btnSaveRightArrow,
+                lblW, wField, btnSaveW,
+                lblA, aField, btnSaveA,
+                lblS, sField, btnSaveS,
+                lblD, dField, btnSaveD,
+                lblO, oField, btnSaveO,
+                lblQ, qField, btnSaveQ);
     }
 
     /**
