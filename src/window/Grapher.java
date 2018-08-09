@@ -103,8 +103,6 @@ public class Grapher {
     public void addPoint (double x, double y) {
         prevData.add(new PrecisePoint(x, y));
 
-        final Point[] data = getDataArr();
-
         chart.updateXYSeries(dataLegend, getData(DataAxis.X), getData(DataAxis.Y), null);
 
     }
@@ -137,13 +135,6 @@ public class Grapher {
         location.set(Constants.GRAPH_Y_INDEX, locY);
     }
 
-    /**
-     * Converts the data into an array.
-     * @return the data in array form
-     */
-    private Point[] getDataArr () {
-        return toArray(prevData);
-    }
 
     /**
      * Converts a given ArrayList of doubles into an array of doubles.
