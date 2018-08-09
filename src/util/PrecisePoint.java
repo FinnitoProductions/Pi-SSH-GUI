@@ -8,7 +8,6 @@ import java.awt.Point;
  * @version Aug 9, 2018
  */
 public class PrecisePoint extends Point {
-
     private double x;
     private double y;
 
@@ -21,37 +20,61 @@ public class PrecisePoint extends Point {
         setLocation(x, y);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public double getX () {
         return x;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public double getY () {
         return y;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setX (double x) {
         this.x = x;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setY (double y) {
         this.y = y;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     public void setLocation (double x, double y) {
         setX(x);
         setY(y);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setLocation (Point p) {
         setLocation(p.getX(), p.getY());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString () {
         return "(" + getX() + ", " + getY() + ")";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals (Object o) {
         if (!(o instanceof Point))
