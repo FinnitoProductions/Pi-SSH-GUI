@@ -30,7 +30,6 @@ public class FileUtil {
         while (br.ready())
             fileContents += br.readLine()
                     + System.getProperty("line.separator");
-        System.out.println(fileContents);
         return fileContents;
     }
 
@@ -52,7 +51,6 @@ public class FileUtil {
         while (br.ready())
             fileContents += br.readLine()
                     + System.getProperty("line.separator");
-        System.out.println(fileContents);
         return fileContents;
     }
 

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,6 +59,7 @@ public class PipedWrapper {
                 try {
                     System.out.println("WRITING " + currentVal);
                     pipedOut.write((currentVal + System.getProperty("line.separator")).getBytes());
+                    pipedOut.flush();
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -84,18 +86,22 @@ public class PipedWrapper {
      */
     class PipedInputThread implements Runnable {
         private String currentVal;
+        private boolean wasCalled;
 
         @Override
         public void run () {
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(pipedIn));
-                currentVal = String.valueOf(br.ready() ? br.readLine() : "");
-            } catch (Exception e) {
-                if (!(e instanceof IOException))
-                    e.printStackTrace();
+            if (wasCalled)
+            {
+                try {
+                    Scanner br = new Scanner(new InputStreamReader(pipedIn));
+                    System.out.println("CHECKING");
+                    currentVal = br.nextLine();
+                    System.out.println("FOUND " + currentVal);
+                } catch (Exception e) {
+                    if (!(e instanceof IOException))
+                        e.printStackTrace();
+                }
             }
-            if (currentVal != null && !currentVal.equals(""))
-                System.out.println("READING " + currentVal);
 
         }
 
@@ -104,7 +110,9 @@ public class PipedWrapper {
          * @return the read value
          */
         public String readVal () {
+            wasCalled = true;
             run();
+            wasCalled = false;
             return currentVal;
         }
     }
@@ -133,12 +141,16 @@ public class PipedWrapper {
         pot.writeVal(s);
     }
 
+    /**
+     * Reads the most recent value from the input stream.
+     * @return the read value
+     */
     public String readVal () {
         return pit.readVal();
     }
     
     public void stop ()
     {
-        service.shutdown();
+        service.shutdownNow();
     }
 }

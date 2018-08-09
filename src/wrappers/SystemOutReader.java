@@ -35,6 +35,7 @@ public class SystemOutReader {
                 while (true) {
                     if (pipedWrapper != null) {
                         String s = pipedWrapper.readVal();
+                        //System.out.println(s);
                         if (!prevVal.equals(s) && !s.equals("")) {
                             prevVal = s;
                             if (StringUtil.startsWithValue(s, Constants.SMART_DASH_PREFIX))
@@ -44,14 +45,15 @@ public class SystemOutReader {
                             System.out.println("NEW VAL: " + prevVal);
                         }
                     } else {
-                        System.out.println("NULL");
                         pipedWrapper = AppWindow.getInstance().getSystemOut();
                     }
                     try {
                         Thread.sleep(50l);
                     } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
+
                 }
             }
         }.start();

@@ -86,7 +86,6 @@ public class AppWindow {
     private JLabel lblD;
     private JLabel lblO;
     private JLabel lblQ;
-    
 
     private JTextField downArrowField;
     private JTextField leftArrowField;
@@ -104,6 +103,7 @@ public class AppWindow {
 
     private PipedWrapper sshCommandValue;
     private PipedWrapper systemOut;
+    
 
     private SystemOutReader outReader;
 
@@ -138,13 +138,22 @@ public class AppWindow {
          * Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); } }
          */
 
-        
-         while (true) { if (window.getSession() == null || !window.getSession().isConnected()) { try {
-         SSHUtil.connectSSH(AppWindow.getInstance()); } catch (Exception e) {
-         window.getLblSshConnected().setText("Pi Not Connected");
-         window.getLblSshConnected().setForeground(Color.RED); } } try { Thread.sleep(1000l); } catch
-         (InterruptedException e) {  e.printStackTrace(); } }
-         
+        while (true) {
+            if (window.getSession() == null || !window.getSession().isConnected()) {
+                try {
+                    SSHUtil.connectSSH(AppWindow.getInstance());
+                } catch (Exception e) {
+                    window.getLblSshConnected().setText("Pi Not Connected");
+                    window.getLblSshConnected().setForeground(Color.RED);
+                }
+            }
+            try {
+                Thread.sleep(1000l);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     /**
@@ -194,7 +203,7 @@ public class AppWindow {
 
         setupKeyChecking();
 
-        // outReader = new SystemOutReader();
+        outReader = new SystemOutReader();
 
         initializeGraph();
 
@@ -519,7 +528,7 @@ public class AppWindow {
             }
 
         });
-        
+
         lblW = new JLabel("W:");
         lblW.setForeground(Color.ORANGE);
         lblW.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -555,7 +564,7 @@ public class AppWindow {
             }
 
         });
-        
+
         lblA = new JLabel("A:");
         lblA.setForeground(Color.ORANGE);
         lblA.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -591,7 +600,7 @@ public class AppWindow {
             }
 
         });
-        
+
         lblS = new JLabel("S:");
         lblS.setForeground(Color.ORANGE);
         lblS.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -627,7 +636,7 @@ public class AppWindow {
             }
 
         });
-        
+
         lblD = new JLabel("D:");
         lblD.setForeground(Color.ORANGE);
         lblD.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -663,11 +672,11 @@ public class AppWindow {
             }
 
         });
-        
+
         lblO = new JLabel("O:");
         lblO.setForeground(Color.ORANGE);
         lblO.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        lblO.setBounds(77, 376+43, 56, 19);
+        lblO.setBounds(77, 376 + 43, 56, 19);
         mainFrame.getContentPane().add(lblO);
 
         oField = new JTextField();
@@ -678,12 +687,12 @@ public class AppWindow {
             e1.printStackTrace();
         }
         oField.setColumns(2);
-        oField.setBounds(144, 376+43, 43, 19);
+        oField.setBounds(144, 376 + 43, 43, 19);
         mainFrame.getContentPane().add(oField);
 
         JButton btnSaveO = new JButton("Save");
         btnSaveO.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        btnSaveO.setBounds(211, 376+43, 61, 19);
+        btnSaveO.setBounds(211, 376 + 43, 61, 19);
         mainFrame.getContentPane().add(btnSaveO);
 
         btnSaveO.addActionListener(new ActionListener() {
@@ -699,11 +708,11 @@ public class AppWindow {
             }
 
         });
-        
+
         lblQ = new JLabel("Q:");
         lblQ.setForeground(Color.ORANGE);
         lblQ.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        lblQ.setBounds(77, 376 + 43*2, 56, 19);
+        lblQ.setBounds(77, 376 + 43 * 2, 56, 19);
         mainFrame.getContentPane().add(lblQ);
 
         qField = new JTextField();
@@ -714,12 +723,12 @@ public class AppWindow {
             e1.printStackTrace();
         }
         qField.setColumns(2);
-        qField.setBounds(144, 376+43*2, 43, 19);
+        qField.setBounds(144, 376 + 43 * 2, 43, 19);
         mainFrame.getContentPane().add(qField);
 
         JButton btnSaveQ = new JButton("Save");
         btnSaveQ.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        btnSaveQ.setBounds(211, 376+43*2, 61, 19);
+        btnSaveQ.setBounds(211, 376 + 43 * 2, 61, 19);
         mainFrame.getContentPane().add(btnSaveQ);
 
         btnSaveQ.addActionListener(new ActionListener() {
@@ -795,7 +804,7 @@ public class AppWindow {
         btnStop = new JButton("Stop");
         btnStop.addActionListener(new ActionListener() {
             public void actionPerformed (ActionEvent arg0) {
-                getSSHCommandValue().writeVal(Constants.K_BIND_STOP_CHAR);
+                AppWindow.getInstance().getSSHCommandValue().writeVal(Constants.K_BIND_STOP_CHAR);
                 btnRun.setEnabled(true);
                 btnStop.setEnabled(false);
             }
@@ -849,7 +858,7 @@ public class AppWindow {
                 String filePath = getFileTransfer().getAbsolutePath();
                 fileTextField.setText("");
                 fileTextField.setText(filePath);
-                if (filePath != null && filePath.length() > 0 && getSession().isConnected()) {
+                if (filePath != null && filePath.length() > 0 && AppWindow.getInstance().session.isConnected()) {
                     String fileName = fc.getSelectedFile().getName();
                     if (fileName.substring(fileName.indexOf(".") + 1).equals("jar")) {
                         getBtnDeploy().setEnabled(true);

@@ -37,6 +37,7 @@ public class SSHUtil {
             window.getSession().setPassword(Constants.PI_PASSWORD);
             window.getSession().setConfig("StrictHostKeyChecking", "no");
             window.getLblSshConnected().setText("Connecting...");
+
             window.getLblSshConnected().setForeground(Color.BLUE);
             window.getSession().connect();
 
@@ -47,6 +48,7 @@ public class SSHUtil {
                 window.getLblSshConnected().setFont(f.deriveFont(f.getStyle() | Font.BOLD));
             }
         } catch (Exception e) {
+            e.printStackTrace();
             window.getLblSshConnected().setText("Pi Not Connected");
             window.getLblSshConnected().setForeground(Color.RED);
             window.getBtnDeploy().setEnabled(false);
@@ -78,6 +80,7 @@ public class SSHUtil {
         if (window.getSession().isConnected() && f != null) {
             try {
                 window.setClExec(window.getSession().openChannel("exec"));
+                //window.clExecReadOutput = window.getSession().openChannel("exec");
                 
                 if (window.getSystemOut() != null)
                     window.getSystemOut().stop();
@@ -88,9 +91,10 @@ public class SSHUtil {
                     window.getSSHCommandValue().stop();
                 window.setSSHCommandValue(new PipedWrapper());
                 window.getClExec().setInputStream(window.getSSHCommandValue().getInputStream());
-
                 ((ChannelExec) window.getClExec()).setCommand("sudo java -jar " + f.getName());
                 window.getClExec().connect();
+                
+                //window.clExecReadOutput.connect();
             } catch (JSchException e) {
                 window.getErrorLabel().setText("ERROR: Code could not be run.");
             }
