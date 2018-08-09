@@ -12,9 +12,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -103,7 +107,6 @@ public class AppWindow {
 
     private PipedWrapper sshCommandValue;
     private PipedWrapper systemOut;
-    
 
     private SystemOutReader outReader;
 
@@ -111,6 +114,8 @@ public class AppWindow {
     private Set<Grapher> graphs;
 
     private Map<PageType, Set<Container>> pageContents;
+
+    private Socket s;
 
     /**
      * 
@@ -185,6 +190,7 @@ public class AppWindow {
      * Initializes the contents of the frame.
      */
     private void initialize () {
+        System.out.println("INITTING");
         pageContents = new HashMap<PageType, Set<Container>>();
         for (PageType p : PageType.values())
             pageContents.put(p, new HashSet<Container>());
@@ -858,7 +864,7 @@ public class AppWindow {
                 String filePath = getFileTransfer().getAbsolutePath();
                 fileTextField.setText("");
                 fileTextField.setText(filePath);
-                if (filePath != null && filePath.length() > 0 && AppWindow.getInstance().session.isConnected()) {
+                if (filePath != null && filePath.length() > 0 && AppWindow.getInstance().getSession().isConnected()) {
                     String fileName = fc.getSelectedFile().getName();
                     if (fileName.substring(fileName.indexOf(".") + 1).equals("jar")) {
                         getBtnDeploy().setEnabled(true);
@@ -867,6 +873,9 @@ public class AppWindow {
                         getBtnDeploy().setEnabled(false);
                         getBtnRun().setEnabled(false);
                     }
+                } else {
+                    getBtnDeploy().setEnabled(false);
+                    getBtnRun().setEnabled(false);
                 }
 
             }
@@ -1014,6 +1023,10 @@ public class AppWindow {
         if (window == null)
             window = new AppWindow();
         return window;
+    }
+
+    public static boolean hasInstance () {
+        return window != null;
     }
 
     /**

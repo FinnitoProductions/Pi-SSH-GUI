@@ -94,9 +94,12 @@ public class PipedWrapper {
             {
                 try {
                     Scanner br = new Scanner(new InputStreamReader(pipedIn));
-                    System.out.println("CHECKING");
-                    currentVal = br.nextLine();
-                    System.out.println("FOUND " + currentVal);
+                    if (br.hasNextLine())
+                    {
+                        System.out.println("CHECKING");
+                        currentVal = br.nextLine();
+                        System.out.println("FOUND " + currentVal);
+                    }
                 } catch (Exception e) {
                     if (!(e instanceof IOException))
                         e.printStackTrace();

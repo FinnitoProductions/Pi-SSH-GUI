@@ -33,19 +33,22 @@ public class SystemOutReader {
                 String prevVal = "";
 
                 while (true) {
-                    if (pipedWrapper != null) {
-                        String s = pipedWrapper.readVal();
-                        //System.out.println(s);
-                        if (!prevVal.equals(s) && !s.equals("")) {
-                            prevVal = s;
-                            if (StringUtil.startsWithValue(s, Constants.SMART_DASH_PREFIX))
-                                SmartDashboardProcessor.addEntry(smartDashboardParser(s));
-                            else
-                                lines.add(s);
-                            System.out.println("NEW VAL: " + prevVal);
+                    if (AppWindow.hasInstance()) {
+                        if (pipedWrapper == null)
+                            pipedWrapper = AppWindow.getInstance().getSystemOut();
+                        if (pipedWrapper != null)
+                        {
+                            String s = pipedWrapper.readVal();
+                            //System.out.println(s);
+                            if (!prevVal.equals(s) && !s.equals("")) {
+                                prevVal = s;
+                                if (StringUtil.startsWithValue(s, Constants.SMART_DASH_PREFIX))
+                                    SmartDashboardProcessor.addEntry(smartDashboardParser(s));
+                                else
+                                    lines.add(s);
+                                System.out.println("NEW VAL: " + prevVal);
+                            }
                         }
-                    } else {
-                        pipedWrapper = AppWindow.getInstance().getSystemOut();
                     }
                     try {
                         Thread.sleep(50l);
