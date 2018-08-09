@@ -1,7 +1,9 @@
 package window;
 
 import java.awt.Component;
-import util.Point;
+import java.awt.Point;
+
+import util.PrecisePoint;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -99,7 +101,7 @@ public class Grapher {
      * @param y the y-value of the point to be added
      */
     public void addPoint (double x, double y) {
-        prevData.add(new Point(x, y));
+        prevData.add(new PrecisePoint(x, y));
 
         final Point[] data = getDataArr();
 
@@ -165,12 +167,12 @@ public class Grapher {
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
-        g.addPoint(new Point (0, 0));
-        g.addPoint(new Point(1, 1));
+        g.addPoint(new PrecisePoint (0, 0));
+        g.addPoint(new PrecisePoint(1, 1));
         while (true)
         {
             List<Point> prevData = g.prevData;
-            g.addPoint(new Point (prevData.get(prevData.size() - 1).getX() + 1, 
+            g.addPoint(new PrecisePoint (prevData.get(prevData.size() - 1).getX() + 1, 
                     (2 * prevData.get(prevData.size()-1).getY() - prevData.get(prevData.size()-2).getY())));
             frame.repaint();
             try {

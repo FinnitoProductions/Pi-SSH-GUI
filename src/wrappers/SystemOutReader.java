@@ -85,7 +85,7 @@ public class SystemOutReader {
      * @param s the String containing the SmartDashboard information
      * @return the entry, after having been parsed
      */
-    private SmartDashboardEntry smartDashboardParser (String s) {
+    private static SmartDashboardEntry smartDashboardParser (String s) {
         long currentTimeMillis = System.currentTimeMillis();
         int endKeyIndex = StringUtil.indexOfNumber(s);
         Double value = new Double(0);

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import util.Constants;
+import util.PrecisePoint;
 import window.AppWindow;
 import window.Grapher;
 
@@ -15,7 +16,7 @@ import window.Grapher;
  * @version Aug 6, 2018
  */
 public class SmartDashboardProcessor {
-    
+
     /**
      * Adds an entry to be graphed.
      * @param entry the entry to be added
@@ -26,6 +27,9 @@ public class SmartDashboardProcessor {
             window.addGraph(entry.getKey());
         }
         Grapher graph = window.getGraph(entry.getKey());
-        graph.addPoint(entry.getEntryTimeMs() - graph.getStartTimeMs(), entry.getValue());
+        System.out.println(entry.getEntryTimeMs() - graph.getStartTimeMs());
+        System.out.println(((double)entry.getEntryTimeMs() - graph.getStartTimeMs()) / 1000.0);
+        window.addPoint(entry.getKey(),
+                new PrecisePoint((double) (entry.getEntryTimeMs() - graph.getStartTimeMs()) / 1000.0, entry.getValue()));
     }
 }

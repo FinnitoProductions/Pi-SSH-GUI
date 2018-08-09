@@ -8,7 +8,9 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-import util.Point;
+import java.awt.Point;
+
+import util.PrecisePoint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -49,6 +51,8 @@ import util.FileUtil;
 import util.SSHUtil;
 import util.SetUtil;
 import wrappers.PipedWrapper;
+import wrappers.SmartDashboardEntry;
+import wrappers.SmartDashboardProcessor;
 import wrappers.SystemOutReader;
 import javax.swing.JScrollBar;
 import javax.swing.JRadioButton;
@@ -129,6 +133,7 @@ public class AppWindow {
 
     /**
      * Launches the application.
+     * @param args the array of arguments passed in by the user when executing
      */
     public static void main (String[] args) {
         window = new AppWindow();
@@ -145,11 +150,18 @@ public class AppWindow {
          */
 
         while (true) {
+            SmartDashboardProcessor.addEntry(new SmartDashboardEntry(System.currentTimeMillis(), "", 10));
+            try {
+                Thread.sleep(10l);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            /*
             if (window.getSession() == null || !window.getSession().isConnected()) {
                 try {
                     SSHUtil.connectSSH(AppWindow.getInstance());
-                    window.addPoint ("", new Point(window.getGraph("").getPrevPoint().getX() + 1,
-                            window.getGraph("").getPrevPoint().getY() + 1));
+                   
                 } catch (Exception e) {
                     window.getLblSshConnected().setText("Pi Not Connected");
                     window.getLblSshConnected().setForeground(Color.RED);
@@ -159,7 +171,7 @@ public class AppWindow {
                 Thread.sleep(1000l);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
 
     }
@@ -1168,5 +1180,7 @@ public class AppWindow {
         if (!containsKey(title))
             addGraph(title);
         getGraph(title).addPoint(p);
+
+        getMainFrame().getContentPane().repaint();
     }
 }
