@@ -1106,13 +1106,24 @@ public class AppWindow {
     /**
      * Adds a given graph to the set of available graphs.
      * @param grapher the graph to be added
+     * 
+     * @return true if a graph with the given title did not already exist; false otherwise
      */
-    public void addGraph (Grapher grapher) {
+    public boolean addGraph (Grapher grapher) {
+        if (containsKey(grapher.getTitle()))
+            return false;
         graphs.add(grapher);
+        return true;
     }
 
-    public void addGraph (String title) {
-        graphs.add(new Grapher(title, "Time", "Value", "Pi Bot",
+    /**
+     * Adds a given graph to the set of available graphs.
+     * @param title the title of the graph to be added
+     * 
+     * @return true if a graph with the given title did not already exist; false otherwise
+     */
+    public boolean addGraph (String title) {
+        return addGraph(new Grapher(title, "Time", "Value", "Pi Bot",
                 Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y, Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y));
     }
 
