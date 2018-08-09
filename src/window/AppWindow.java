@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -296,6 +297,7 @@ public class AppWindow {
         graphs = new HashSet<Grapher>();
         currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
                 Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y);
+        graphs.add(currentGraph);
         Container c = currentGraph.getChartPanel();
         mainFrame.getContentPane().add(c);
         pageContents.get(PageType.GRAPHS).add(c);
@@ -1109,6 +1111,11 @@ public class AppWindow {
         graphs.add(grapher);
     }
 
+    public void addGraph (String title) {
+        graphs.add(new Grapher(title, "Time", "Value", "Pi Bot",
+                Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y, Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y));
+    }
+
     /**
      * Gets the set of all used graphs.
      * @return the set of used graphs
@@ -1119,23 +1126,34 @@ public class AppWindow {
 
     /**
      * Determines whether the window contains a graph with the given title.
-     * @param s the title of the graph to be checked for
+     * @param title the title of the graph to be checked for
      * @return true if the window contains a graph with the title s; false otherwise
      */
-    public boolean containsKey (String s) {
-        return getGraph(s) != null;
+    public boolean containsKey (String title) {
+        return getGraph(title) != null;
     }
 
     /**
      * Gets the graph with the given title.
-     * @param s the title to check for
+     * @param title the title to check for
      * @return the graph with the given title; null if nonexistent
      */
-    public Grapher getGraph (String s) {
+    public Grapher getGraph (String title) {
         for (Grapher g : graphs) {
-            if (g != null && g.getTitle().equals(s))
+            if (g != null && g.getTitle().equals(title))
                 return g;
         }
         return null;
+    }
+
+    /**
+     * Adds a point to the graph with the given key, creating it if non-existent.
+     * @param title the title of the graph which the point will be added to
+     * @param p the point which will be added to the graph
+     */
+    public void addPoint (String title, Point p) {
+        if (!containsKey(title))
+            addGraph(title);
+        getGraph(title).addPoint(p);
     }
 }

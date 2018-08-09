@@ -28,12 +28,11 @@ public class Grapher {
 
     private ArrayList<Integer> size;
     private ArrayList<Integer> location;
-    
+
     private String dataLegend;
     private String title;
-    
-    private long startTimeMs;
 
+    private long startTimeMs;
 
     /**
      * Constructs a new Grapher.
@@ -50,7 +49,7 @@ public class Grapher {
             int locationX, int locationY) {
         this.dataLegend = dataLegend;
         this.title = title;
-        
+
         prevData = new ArrayList<List<Double>>();
         prevData.add(new ArrayList<Double>());
         prevData.add(new ArrayList<Double>());
@@ -65,10 +64,10 @@ public class Grapher {
         location = new ArrayList<Integer>();
         location.add(0);
         location.add(0);
-        
+
         setSize(sizeX, sizeY);
         setLocation(locationX, locationY);
-        
+
         startTimeMs = System.currentTimeMillis();
     }
 
@@ -99,9 +98,16 @@ public class Grapher {
 
         final double[][] data = getDataArr();
 
-
         chart.updateXYSeries(dataLegend, data[Constants.GRAPH_X_INDEX], data[Constants.GRAPH_Y_INDEX], null);
 
+    }
+
+    /**
+     * Adds a new point to the graph.
+     * @param p the point to be added
+     */
+    public void addPoint (Point p) {
+        addPoint(p.getX(), p.getY());
     }
 
     /**
@@ -155,7 +161,7 @@ public class Grapher {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
     }
-    
+
     /**
      * Gets the startTimeMs.
      * @return the startTimeMs

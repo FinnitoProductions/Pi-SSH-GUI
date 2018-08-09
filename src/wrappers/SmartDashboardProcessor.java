@@ -23,8 +23,7 @@ public class SmartDashboardProcessor {
     public static void addEntry (SmartDashboardEntry entry) {
         AppWindow window = AppWindow.getInstance();
         if (!window.containsKey(entry.getKey())) {
-            window.addGraph(new Grapher(entry.getKey(), "Time", "Value", "Pi Bot",
-                    Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y, Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y));
+            window.addGraph(entry.getKey());
         }
         Grapher graph = window.getGraph(entry.getKey());
         graph.addPoint(entry.getEntryTimeMs() - graph.getStartTimeMs(), entry.getValue());
