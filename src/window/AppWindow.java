@@ -8,7 +8,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-import java.awt.Point;
+import util.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -148,6 +148,8 @@ public class AppWindow {
             if (window.getSession() == null || !window.getSession().isConnected()) {
                 try {
                     SSHUtil.connectSSH(AppWindow.getInstance());
+                    window.addPoint ("", new Point(window.getGraph("").getPrevPoint().getX() + 1,
+                            window.getGraph("").getPrevPoint().getY() + 1));
                 } catch (Exception e) {
                     window.getLblSshConnected().setText("Pi Not Connected");
                     window.getLblSshConnected().setForeground(Color.RED);

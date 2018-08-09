@@ -1,7 +1,7 @@
 package window;
 
 import java.awt.Component;
-import java.awt.Point;
+import util.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +22,8 @@ import util.Constants;
  * @version Aug 6, 2018
  */
 public class Grapher {
-    private static List<List<Double>> prevData;
+    private static List<Point> prevData;
+
     private XYChart chart;
     private JPanel chartPanel;
 
@@ -33,6 +34,15 @@ public class Grapher {
     private String title;
 
     private long startTimeMs;
+
+    /**
+     * 
+     * @author Finn Frankis
+     * @version Aug 9, 2018
+     */
+    public enum DataAxis {
+        X, Y
+    }
 
     /**
      * Constructs a new Grapher.
@@ -50,9 +60,8 @@ public class Grapher {
         this.dataLegend = dataLegend;
         this.title = title;
 
-        prevData = new ArrayList<List<Double>>();
-        prevData.add(new ArrayList<Double>());
-        prevData.add(new ArrayList<Double>());
+        prevData = new ArrayList<Point>();
+
         chart = QuickChart.getChart(title, xAxisTitle, yAxisTitle, dataLegend,
                 new double[] {0}, new double[] {0});
         chartPanel = new XChartPanel<XYChart>(chart);
@@ -90,15 +99,11 @@ public class Grapher {
      * @param y the y-value of the point to be added
      */
     public void addPoint (double x, double y) {
-        List<Double> xData = prevData.get(Constants.GRAPH_X_INDEX);
-        xData.add(x);
+        prevData.add(new Point(x, y));
 
-        List<Double> yData = prevData.get(Constants.GRAPH_Y_INDEX);
-        yData.add(y);
+        final Point[] data = getDataArr();
 
-        final double[][] data = getDataArr();
-
-        chart.updateXYSeries(dataLegend, data[Constants.GRAPH_X_INDEX], data[Constants.GRAPH_Y_INDEX], null);
+        chart.updateXYSeries(dataLegend, getData(DataAxis.X), getData(DataAxis.Y), null);
 
     }
 
@@ -134,9 +139,8 @@ public class Grapher {
      * Converts the data into an array.
      * @return the data in array form
      */
-    private double[][] getDataArr () {
-        return new double[][] {toArray(prevData.get(Constants.GRAPH_X_INDEX)),
-                toArray(prevData.get(Constants.GRAPH_Y_INDEX))};
+    private Point[] getDataArr () {
+        return toArray(prevData);
     }
 
     /**
@@ -144,8 +148,8 @@ public class Grapher {
      * @param list the ArrayList to convert
      * @return the ArrayList, converted into an array
      */
-    private static double[] toArray (List<Double> list) {
-        double[] toReturn = new double[list.size()];
+    private static Point[] toArray (List<Point> list) {
+        Point[] toReturn = new Point[list.size()];
         for (int i = 0; i < list.size(); i++)
             toReturn[i] = list.get(i);
         return toReturn;
@@ -157,9 +161,25 @@ public class Grapher {
         JFrame frame = new JFrame();
         frame.setBounds(Constants.FRAME_LOC_X, Constants.FRAME_LOC_Y, Constants.FRAME_SIZE_X,
                 Constants.FRAME_SIZE_Y); // 550 for exporting
+        frame.getContentPane().add(g.getChartPanel());
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
+        g.addPoint(new Point (0, 0));
+        g.addPoint(new Point(1, 1));
+        while (true)
+        {
+            List<Point> prevData = g.prevData;
+            g.addPoint(new Point (prevData.get(prevData.size() - 1).getX() + 1, 
+                    (2 * prevData.get(prevData.size()-1).getY() - prevData.get(prevData.size()-2).getY())));
+            frame.repaint();
+            try {
+                Thread.sleep(100l);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -186,6 +206,26 @@ public class Grapher {
      */
     public void setTitle (String title) {
         this.title = title;
+    }
+
+    /**
+     * Gets the previous point plotted on the graph.
+     * @return the previous point
+     */
+    public Point getPrevPoint () {
+        return prevData.get(prevData.size() - 1);
+    }
+
+    /**
+     * Gets the data plotted on one of the axes.
+     * @param axis the axis to be returned (x, y)
+     * @return an ArrayList containing the data
+     */
+    public ArrayList<Double> getData (DataAxis axis) {
+        ArrayList<Double> data = new ArrayList<Double>();
+        for (Point p : prevData)
+            data.add(axis == DataAxis.X ? p.getX() : p.getY());
+        return data;
     }
 
 }
