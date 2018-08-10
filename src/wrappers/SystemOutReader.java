@@ -51,7 +51,7 @@ public class SystemOutReader {
                         }
                     }
                     try {
-                        Thread.sleep(50l);
+                        Thread.sleep(10l);
                     } catch (InterruptedException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -93,9 +93,11 @@ public class SystemOutReader {
             endKeyIndex = s.length();
             value = null;
         }
-        String key = s.substring(Constants.SMART_DASH_PREFIX.length(), endKeyIndex);
+        String key = s.substring(Constants.SMART_DASH_PREFIX.length(), endKeyIndex - 1);
         value = (value == null) ? 0 : Double.parseDouble(s.substring(endKeyIndex));
-        return new SmartDashboardEntry((int) currentTimeMillis, key, value);
+
+        System.out.println("KEY " + key + "VALUE " + value);
+        return new SmartDashboardEntry(currentTimeMillis, key, value);
     }
 
 }

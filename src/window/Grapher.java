@@ -113,6 +113,7 @@ public class Grapher {
      */
     public void addPoint (Point p) {
         addPoint(p.getX(), p.getY());
+        System.out.println(p);
     }
 
     /**
@@ -219,6 +220,11 @@ public class Grapher {
         for (Point p : prevData)
             data.add(axis == DataAxis.X ? p.getX() : p.getY());
         return data;
+    }
+    
+    public String toString()
+    {
+        return title;
     }
 
 }

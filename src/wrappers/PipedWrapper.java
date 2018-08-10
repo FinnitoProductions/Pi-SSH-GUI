@@ -1,7 +1,5 @@
 package wrappers;
 
-import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
@@ -9,8 +7,6 @@ import java.io.PipedOutputStream;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.xml.ws.Service;
 
 /**
  * Wraps the process of reading from and writing to connected PipedInput and PipedOutput streams. Note that a
@@ -25,7 +21,7 @@ public class PipedWrapper {
 
     private PipedOutputThread pot;
     private PipedInputThread pit;
-    
+
     private ExecutorService service;
 
     /**
@@ -86,24 +82,17 @@ public class PipedWrapper {
      */
     class PipedInputThread implements Runnable {
         private String currentVal;
-        private boolean wasCalled;
 
         @Override
         public void run () {
-            if (wasCalled)
-            {
-                try {
-                    Scanner br = new Scanner(new InputStreamReader(pipedIn));
-                    if (br.hasNextLine())
-                    {
-                        System.out.println("CHECKING");
-                        currentVal = br.nextLine();
-                        System.out.println("FOUND " + currentVal);
-                    }
-                } catch (Exception e) {
-                    if (!(e instanceof IOException))
-                        e.printStackTrace();
+            try {
+                Scanner br = new Scanner(new InputStreamReader(pipedIn));
+                if (br.hasNextLine()) {
+                    currentVal = br.nextLine();
                 }
+            } catch (Exception e) {
+                if (!(e instanceof IOException))
+                    e.printStackTrace();
             }
 
         }
@@ -113,9 +102,7 @@ public class PipedWrapper {
          * @return the read value
          */
         public String readVal () {
-            wasCalled = true;
             run();
-            wasCalled = false;
             return currentVal;
         }
     }
@@ -151,9 +138,8 @@ public class PipedWrapper {
     public String readVal () {
         return pit.readVal();
     }
-    
-    public void stop ()
-    {
+
+    public void stop () {
         service.shutdownNow();
     }
 }

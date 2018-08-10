@@ -150,14 +150,7 @@ public class AppWindow {
          */
 
         while (true) {
-            SmartDashboardProcessor.addEntry(new SmartDashboardEntry(System.currentTimeMillis(), "", 10));
-            try {
-                Thread.sleep(10l);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            /*
+            System.out.println(window.graphs);
             if (window.getSession() == null || !window.getSession().isConnected()) {
                 try {
                     SSHUtil.connectSSH(AppWindow.getInstance());
@@ -170,6 +163,13 @@ public class AppWindow {
             try {
                 Thread.sleep(1000l);
             } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            /*SmartDashboardProcessor.addEntry (new SmartDashboardEntry(System.currentTimeMillis(), "Left Sensor Position", 10));
+            try {
+                Thread.sleep(50l);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
                 e.printStackTrace();
             }*/
         }
@@ -205,7 +205,6 @@ public class AppWindow {
      * Initializes the contents of the frame.
      */
     private void initialize () {
-        System.out.println("INITTING");
         pageContents = new HashMap<PageType, Set<Container>>();
         for (PageType p : PageType.values())
             pageContents.put(p, new HashSet<Container>());
@@ -1127,6 +1126,7 @@ public class AppWindow {
         if (containsKey(grapher.getTitle()))
             return false;
         graphs.add(grapher);
+        mainFrame.getContentPane().add(grapher.getChartPanel());
         return true;
     }
 
@@ -1180,7 +1180,8 @@ public class AppWindow {
         if (!containsKey(title))
             addGraph(title);
         getGraph(title).addPoint(p);
-
+        getMainFrame().repaint();
         getMainFrame().getContentPane().repaint();
     }
+
 }

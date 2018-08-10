@@ -23,13 +23,12 @@ public class SmartDashboardProcessor {
      */
     public static void addEntry (SmartDashboardEntry entry) {
         AppWindow window = AppWindow.getInstance();
+        System.out.println("ENTRY " + entry);
         if (!window.containsKey(entry.getKey())) {
             window.addGraph(entry.getKey());
         }
         Grapher graph = window.getGraph(entry.getKey());
-        System.out.println(entry.getEntryTimeMs() - graph.getStartTimeMs());
-        System.out.println(((double)entry.getEntryTimeMs() - graph.getStartTimeMs()) / 1000.0);
         window.addPoint(entry.getKey(),
-                new PrecisePoint((double) (entry.getEntryTimeMs() - graph.getStartTimeMs()) / 1000.0, entry.getValue()));
+                new PrecisePoint((entry.getEntryTimeMs() - graph.getStartTimeMs()) / 1000.0, entry.getValue()));
     }
 }

@@ -82,13 +82,13 @@ public class SSHUtil {
                 window.setClExec(window.getSession().openChannel("exec"));
                 //window.clExecReadOutput = window.getSession().openChannel("exec");
                 
-                if (window.getSystemOut() != null)
-                    window.getSystemOut().stop();
+                //if (window.getSystemOut() != null)
+                    //window.getSystemOut().stop();
                 window.setSystemOut(new PipedWrapper());
                 window.getClExec().setOutputStream(window.getSystemOut().getOutputStream());
                 
-                if (window.getSSHCommandValue() != null)
-                    window.getSSHCommandValue().stop();
+                //if (window.getSSHCommandValue() != null)
+                    //window.getSSHCommandValue().stop();
                 window.setSSHCommandValue(new PipedWrapper());
                 window.getClExec().setInputStream(window.getSSHCommandValue().getInputStream());
                 ((ChannelExec) window.getClExec()).setCommand("sudo java -jar " + f.getName());
