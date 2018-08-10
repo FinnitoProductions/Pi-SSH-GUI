@@ -311,6 +311,7 @@ public class AppWindow {
      */
     private void initializeGraph () {
         graphs = new HashSet<Grapher>();
+        
         /*currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
                 Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y);
         graphs.add(currentGraph);

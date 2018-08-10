@@ -136,7 +136,6 @@ public class Grapher {
         location.set(Constants.GRAPH_Y_INDEX, locY);
     }
 
-
     /**
      * Converts a given ArrayList of doubles into an array of doubles.
      * @param list the ArrayList to convert
@@ -159,13 +158,12 @@ public class Grapher {
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
-        g.addPoint(new PrecisePoint (0, 0));
+        g.addPoint(new PrecisePoint(0, 0));
         g.addPoint(new PrecisePoint(1, 1));
-        while (true)
-        {
+        while (true) {
             List<Point> prevData = g.prevData;
-            g.addPoint(new PrecisePoint (prevData.get(prevData.size() - 1).getX() + 1, 
-                    (2 * prevData.get(prevData.size()-1).getY() - prevData.get(prevData.size()-2).getY())));
+            g.addPoint(new PrecisePoint(prevData.get(prevData.size() - 1).getX() + 1,
+                    (2 * prevData.get(prevData.size() - 1).getY() - prevData.get(prevData.size() - 2).getY())));
             frame.repaint();
             try {
                 Thread.sleep(100l);
@@ -221,10 +219,19 @@ public class Grapher {
             data.add(axis == DataAxis.X ? p.getX() : p.getY());
         return data;
     }
-    
-    public String toString()
-    {
+
+    /**
+    * {@inheritDoc}
+     */
+    public String toString () {
         return title;
+    }
+
+    /**
+     * 
+     */
+    public void reset () {
+        prevData = new ArrayList<Point>();
     }
 
 }
