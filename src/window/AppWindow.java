@@ -121,6 +121,8 @@ public class AppWindow {
     private Map<PageType, Set<Container>> pageContents;
 
     private Socket s;
+    
+    private PageType currentPage;
 
     /**
      * 
@@ -270,6 +272,7 @@ public class AppWindow {
     }
 
     private void showPage (PageType pt) {
+        currentPage = pt;;
         for (Container c : pageContents.get(pt))
             c.setVisible(true);
     }
@@ -308,12 +311,12 @@ public class AppWindow {
      */
     private void initializeGraph () {
         graphs = new HashSet<Grapher>();
-        currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
+        /*currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
                 Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y);
         graphs.add(currentGraph);
         Container c = currentGraph.getChartPanel();
         mainFrame.getContentPane().add(c);
-        pageContents.get(PageType.GRAPHS).add(c);
+        pageContents.get(PageType.GRAPHS).add(c);*/
     }
 
     /**
@@ -1126,7 +1129,12 @@ public class AppWindow {
         if (containsKey(grapher.getTitle()))
             return false;
         graphs.add(grapher);
-        mainFrame.getContentPane().add(grapher.getChartPanel());
+        Container panel = grapher.getChartPanel();
+        mainFrame.getContentPane().add(panel);
+        for (Container c : pageContents.get(PageType.GRAPHS))
+            if ((c instanceof XChartPanel) && c.isVisible())
+                c.setVisible(false);
+        addToPage (PageType.GRAPHS, panel);
         return true;
     }
 
@@ -1182,6 +1190,15 @@ public class AppWindow {
         getGraph(title).addPoint(p);
         getMainFrame().repaint();
         getMainFrame().getContentPane().repaint();
+    }
+    
+    public void addToPage (PageType page, Container c)
+    {
+        mainFrame.getContentPane().add(c);
+        if (currentPage == page)
+            c.setVisible(true);
+        else
+            c.setVisible(false);
     }
 
 }
