@@ -1,6 +1,8 @@
 package window;
 
+import java.awt.Button;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -22,13 +24,16 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -123,6 +128,8 @@ public class AppWindow {
     private Socket s;
     
     private PageType currentPage;
+    
+    private ButtonGroup graphButtons;
 
     /**
      * 
@@ -144,6 +151,11 @@ public class AppWindow {
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
 
         window.getMainFrame().setVisible(true);
+        window.addGraph("Graph 1");
+        window.addGraph("Graph 2");
+        window.addGraph("Graph 3");
+        window.addGraph("Graph 4");
+        window.addGraph("Graph 5");
 
         /*
          * for (double i = 0; i < 100000; i += .1) { window.positionGraph.addPoint(i, Math.pow(i, 2)); //
@@ -151,7 +163,7 @@ public class AppWindow {
          * Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); } }
          */
 
-        while (true) {
+        /*while (true) {
             System.out.println(window.graphs);
             if (window.getSession() == null || !window.getSession().isConnected()) {
                 try {
@@ -173,8 +185,8 @@ public class AppWindow {
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            }*/
-        }
+            }
+        }*/
 
     }
 
@@ -272,7 +284,7 @@ public class AppWindow {
     }
 
     private void showPage (PageType pt) {
-        currentPage = pt;;
+        currentPage = pt;
         for (Container c : pageContents.get(pt))
             c.setVisible(true);
     }
@@ -311,7 +323,9 @@ public class AppWindow {
      */
     private void initializeGraph () {
         graphs = new HashSet<Grapher>();
+        graphButtons = new ButtonGroup();
         
+        updateGraphList();
         /*currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
                 Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y);
         graphs.add(currentGraph);
@@ -847,9 +861,11 @@ public class AppWindow {
         int currentPos = 0;
         for (Grapher g : graphs) {
             JRadioButton rdbtnGraph = new JRadioButton(g.getTitle());
+            System.out.println(g.getTitle());
             rdbtnGraph.setBounds(71, startPositionY + deltaPositionY * currentPos++, 201, 35);
+            graphButtons.add(rdbtnGraph);
             rdbtnGraph.addActionListener(new ActionListener() {
-
+            
                 @Override
                 public void actionPerformed (ActionEvent arg0) {
 
@@ -859,6 +875,7 @@ public class AppWindow {
             window.getMainFrame().getContentPane().add(rdbtnGraph);
             pageContents.get(PageType.GRAPHS).add(rdbtnGraph);
         }
+        System.out.println();
     }
 
     /**
@@ -1136,6 +1153,7 @@ public class AppWindow {
             if ((c instanceof XChartPanel) && c.isVisible())
                 c.setVisible(false);
         addToPage (PageType.GRAPHS, panel);
+        updateGraphList();
         return true;
     }
 
