@@ -26,7 +26,7 @@ public class StringUtil {
     public static int indexOfNumber (String s) {
         for (int i = 0; i < s.length(); i++) {
             int compareTo = s.substring(i, i + 1).compareTo("0");
-            if (compareTo < 9 && compareTo > 0)
+            if (compareTo <= 9 && compareTo >= 0)
                 return i;
         }
         return -1;
