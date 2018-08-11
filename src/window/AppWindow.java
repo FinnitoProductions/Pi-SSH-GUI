@@ -121,6 +121,8 @@ public class AppWindow {
     private ButtonGroup graphButtons;
 
     private String selectedIP;
+    
+    private boolean shouldReconnect;
 
     /**
      * 
@@ -146,9 +148,10 @@ public class AppWindow {
         
         while (true) {
             System.out.println(window.graphs);
-            if (window.getSession() == null || !window.getSession().isConnected()) {
+            if (window.shouldReconnect || window.getSession() == null || !window.getSession().isConnected()) {
                 try {
                     SSHUtil.connectSSH(AppWindow.getInstance());
+                    window.shouldReconnect = false;
                    
                 } catch (Exception e) {
                     window.getLblSshConnected().setText("Pi Not Connected");
@@ -979,6 +982,7 @@ public class AppWindow {
                 String selectedVal = (String) cb.getSelectedItem();
                 try {
                     setSelectedIP(ipBindings.get(selectedVal).toString());
+                    shouldReconnect = true;
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
