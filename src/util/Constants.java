@@ -50,7 +50,9 @@ public class Constants {
     public static final int GRAPH_SIZE_Y = 400;
     public static final int GRAPH_LOC_X = 275;
     public static final int GRAPH_LOC_Y = 50;
-
-
+    
+    public static final String IP_BIND_1_KEY = "1";
+    public static final String IP_BIND_2_KEY = "2";
+    public static final String IP_BIND_3_KEY = "3";
     
 }

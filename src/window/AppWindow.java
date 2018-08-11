@@ -168,23 +168,6 @@ public class AppWindow {
      */
 
     private AppWindow () {
-        initialize();
-    }
-
-    /**
-     * 
-     */
-    private void setupExternalFiles () {
-        new File(Constants.EXT_DIR_PATH).mkdir();
-
-        FileUtil.setupExternalFile(Constants.EXT_K_BIND_PATH, Constants.INT_K_BIND_PATH);
-        FileUtil.setupExternalFile(Constants.EXT_IP_BIND_PATH, Constants.INT_IP_BIND_PATH);
-    }
-
-    /**
-     * Initializes the contents of the frame.
-     */
-    private void initialize () {
         pageContents = new HashMap<PageType, Set<Container>>();
         for (PageType p : PageType.values())
             pageContents.put(p, new HashSet<Container>());
@@ -206,6 +189,23 @@ public class AppWindow {
         initializeGraph();
 
         setupPages();
+        
+        try {
+            selectedIP = ipBindings.getString(Constants.IP_BIND_1_KEY);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 
+     */
+    private void setupExternalFiles () {
+        new File(Constants.EXT_DIR_PATH).mkdir();
+
+        FileUtil.setupExternalFile(Constants.EXT_K_BIND_PATH, Constants.INT_K_BIND_PATH);
+        FileUtil.setupExternalFile(Constants.EXT_IP_BIND_PATH, Constants.INT_IP_BIND_PATH);
     }
 
     /**
@@ -412,7 +412,7 @@ public class AppWindow {
         mainFrame.getContentPane().add(field1);
         field1.setColumns(2);
         try {
-            field1.setText(ipBindings == null ? "" : ipBindings.getString("1"));
+            field1.setText(ipBindings == null ? "" : ipBindings.getString(Constants.IP_BIND_1_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -427,7 +427,7 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    ipBindings.put("1", field1.getText());
+                    ipBindings.put(Constants.IP_BIND_1_KEY, field1.getText());
                     FileUtil.writeStringToFile(Constants.EXT_IP_BIND_PATH, ipBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -444,7 +444,7 @@ public class AppWindow {
 
         field2 = new JTextField();
         try {
-            field2.setText(ipBindings == null ? "" : ipBindings.getString("2"));
+            field2.setText(ipBindings == null ? "" : ipBindings.getString(Constants.IP_BIND_2_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -464,7 +464,7 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    ipBindings.put("2", downArrowField.getText());
+                    ipBindings.put(Constants.IP_BIND_2_KEY, downArrowField.getText());
                     FileUtil.writeStringToFile(Constants.EXT_IP_BIND_PATH, ipBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -481,7 +481,7 @@ public class AppWindow {
 
         field3 = new JTextField();
         try {
-            field3.setText(ipBindings == null ? "" : ipBindings.getString("3"));
+            field3.setText(ipBindings == null ? "" : ipBindings.getString(Constants.IP_BIND_3_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -500,7 +500,7 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    ipBindings.put("3", field3.getText());
+                    ipBindings.put(Constants.IP_BIND_3_KEY, field3.getText());
                     FileUtil.writeStringToFile(Constants.EXT_IP_BIND_PATH, ipBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
