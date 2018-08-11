@@ -93,7 +93,7 @@ public class AppWindow {
     private JTextField dField;
     private JTextField oField;
     private JTextField qField;
-    
+
     private JLabel lblIPBindings;
     private JTextField field1;
     private JTextField field2;
@@ -119,6 +119,8 @@ public class AppWindow {
     private PageType currentPage;
 
     private ButtonGroup graphButtons;
+
+    private String selectedIP;
 
     /**
      * 
@@ -147,22 +149,18 @@ public class AppWindow {
          * Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); } }
          */
 
-        /*
-         * while (true) { System.out.println(window.graphs); if (window.getSession() == null ||
-         * !window.getSession().isConnected()) { try { SSHUtil.connectSSH(AppWindow.getInstance());
-         * 
-         * } catch (Exception e) { window.getLblSshConnected().setText("Pi Not Connected");
-         * window.getLblSshConnected().setForeground(Color.RED); } } try { Thread.sleep(1000l); } catch
-         * (InterruptedException e) { e.printStackTrace(); } /*SmartDashboardProcessor.addEntry (new
-         * SmartDashboardEntry(System.currentTimeMillis(), "Left Sensor Position", 10)); try { Thread.sleep(50l); }
-         * catch (InterruptedException e) { // TODO Auto-generated catch block e.printStackTrace(); } }
-         */
-
-    }
+        
+         while (true) { System.out.println(window.graphs); if (window.getSession() == null ||
+         !window.getSession().isConnected()) { try { SSHUtil.connectSSH(AppWindow.getInstance());
+          
+         } catch (Exception e) { window.getLblSshConnected().setText("Pi Not Connected");
+         window.getLblSshConnected().setForeground(Color.RED); } } try { Thread.sleep(1000l); } catch
+         (InterruptedException e) { e.printStackTrace(); }
 
     /**
      * Creates the application.
      */
+
     private AppWindow () {
         initialize();
     }
@@ -172,7 +170,7 @@ public class AppWindow {
      */
     private void setupExternalFiles () {
         new File(Constants.EXT_DIR_PATH).mkdir();
- 
+
         FileUtil.setupExternalFile(Constants.EXT_K_BIND_PATH, Constants.INT_K_BIND_PATH);
         FileUtil.setupExternalFile(Constants.EXT_IP_BIND_PATH, Constants.INT_IP_BIND_PATH);
     }
@@ -189,24 +187,36 @@ public class AppWindow {
 
         displayMainFrame();
 
-        setupFileSelector();
+        setupKeyChecking();
 
-        displayDeployRunBtns();
+        setupHomePage();
 
         setupWarningLabels();
 
-        setupKeyBindings();
-        
-        setupIpBindings();
-
-        setupKeyChecking();
+        setupBindingsPage();
 
         outReader = new SystemOutReader();
 
         initializeGraph();
 
         setupPages();
+    }
 
+    /**
+     * 
+     */
+    private void setupBindingsPage () {
+        setupKeyBindings();
+
+        setupIpBindings();
+    }
+
+    /**
+     * 
+     */
+    private void setupHomePage () {
+        setupFileSelector();
+        displayDeployRunBtns();
         setupRobotSelector();
     }
 
@@ -369,13 +379,13 @@ public class AppWindow {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
     }
 
-    private void setupIpBindings() {
+    private void setupIpBindings () {
         lblIPBindings = new JLabel("IP Bindings:");
         lblIPBindings.setForeground(Color.ORANGE);
         lblIPBindings.setFont(new Font("Tahoma", Font.PLAIN, 24));
         lblIPBindings.setBounds(340, 51, 157, 32);
         mainFrame.getContentPane().add(lblIPBindings);
-        
+
         try {
             String fileContents = FileUtil.getStringFromExternalFile(Constants.EXT_IP_BIND_PATH);
 
@@ -463,7 +473,7 @@ public class AppWindow {
         lbl3.setBounds(340, 167, 56, 19);
         mainFrame.getContentPane().add(lbl3);
 
-        field3 = new JTextField(); 
+        field3 = new JTextField();
         try {
             field3.setText(ipBindings == null ? "" : ipBindings.getString("3"));
         } catch (JSONException e1) {
@@ -492,12 +502,13 @@ public class AppWindow {
             }
 
         });
-        
+
         SetUtil.addMultiple(pageContents.get(PageType.BINDINGS), lblIPBindings,
                 lbl1, field1, btnSave1,
                 lbl2, field2, btnSave2,
                 lbl3, field3, btnSave3);
     }
+
     /**
      * 
      */
@@ -949,22 +960,28 @@ public class AppWindow {
     }
 
     private void setupRobotSelector () {
-        String[] petStrings = {"1", "2", "3"};
+        String[] optionList = {"1", "2", "3"};
 
         // Create the combo box, select item at index 4.
         // Indices start at 0, so 4 specifies the pig.
-        JComboBox petList = new JComboBox(petStrings);
-        petList.setSelectedIndex(0);
-        petList.addActionListener(new ActionListener() {
+        JComboBox optionBox = new JComboBox(optionList);
+        optionBox.setSelectedIndex(0);
+        optionBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 JComboBox cb = (JComboBox) arg0.getSource();
-                Integer selectedVal = Integer.parseInt((String) cb.getSelectedItem());
+                String selectedVal = (String) cb.getSelectedItem();
+                try {
+                    setSelectedIP(ipBindings.get(selectedVal).toString());
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
-        petList.setBounds(110, 100, 50, 20);
-        mainFrame.getContentPane().add(petList);
-        pageContents.get(PageType.HOME).add(petList);
+        optionBox.setBounds(110, 100, 50, 20);
+        mainFrame.getContentPane().add(optionBox);
+        pageContents.get(PageType.HOME).add(optionBox);
     }
 
     private void updateGraphList () {
@@ -1329,6 +1346,24 @@ public class AppWindow {
             c.setVisible(true);
         else
             c.setVisible(false);
+    }
+
+    /**
+     * Gets the selectedIP.
+     * @return the selectedIP
+     */
+    public String getSelectedIP () {
+        return selectedIP;
+    }
+
+    /**
+     * Sets selectedIP to a given value.
+     * @param selectedIP the selectedIP to set
+     *
+     * @postcondition the selectedIP has been changed to the newly passed in selectedIP
+     */
+    public void setSelectedIP (String selectedIP) {
+        this.selectedIP = selectedIP;
     }
 
 }
