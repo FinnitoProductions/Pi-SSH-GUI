@@ -10,7 +10,7 @@ import java.io.File;
 public class Constants {
     public static String PI_USER = "pi";
     public static String PI_PASSWORD = "team1072";
-    public static String PI_IP = "192.168.2.63";
+    public static String PI_IP = "192.168.0.63";
     public static int PI_PORT = 22;
 
     public static final int FRAME_LOC_X = 100;
