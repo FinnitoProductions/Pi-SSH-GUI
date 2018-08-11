@@ -19,10 +19,12 @@ public class Constants {
     public static final int FRAME_SIZE_Y = 600;
 
     public static final String INT_K_BIND_PATH = "/bindings.json";
+    public static final String INT_IP_BIND_PATH = "/ipbindings.json";
     public static final String USER_HOME = System.getProperty("user.home") + File.separator;
     public static final String EXT_DIR_NAME = "pi-ssh-app";
     public static final String EXT_DIR_PATH = USER_HOME + EXT_DIR_NAME;
     public static final String EXT_K_BIND_PATH = EXT_DIR_PATH + File.separator + "bindings.json";
+    public static final String EXT_IP_BIND_PATH = EXT_DIR_PATH + File.separator + "ipbindings.json";
     
     public static final String HOME_ICON_PATH = "/images/homeicon.png";
     public static final String GRAPH_ICON_PATH = "/images/graphicon.jpg";
