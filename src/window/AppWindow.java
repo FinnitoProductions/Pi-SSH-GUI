@@ -143,19 +143,25 @@ public class AppWindow {
 
         window.getMainFrame().setVisible(true); 
 
-        /*
-         * for (double i = 0; i < 100000; i += .1) { window.positionGraph.addPoint(i, Math.pow(i, 2)); //
-         * mainFrame.getContentPane().add(positionGraph.getChartPanel()); window.mainFrame.repaint(); try {
-         * Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); } }
-         */
-
         
-         while (true) { System.out.println(window.graphs); if (window.getSession() == null ||
-         !window.getSession().isConnected()) { try { SSHUtil.connectSSH(AppWindow.getInstance());
-          
-         } catch (Exception e) { window.getLblSshConnected().setText("Pi Not Connected");
-         window.getLblSshConnected().setForeground(Color.RED); } } try { Thread.sleep(1000l); } catch
-         (InterruptedException e) { e.printStackTrace(); }
+        while (true) {
+            System.out.println(window.graphs);
+            if (window.getSession() == null || !window.getSession().isConnected()) {
+                try {
+                    SSHUtil.connectSSH(AppWindow.getInstance());
+                   
+                } catch (Exception e) {
+                    window.getLblSshConnected().setText("Pi Not Connected");
+                    window.getLblSshConnected().setForeground(Color.RED);
+                }
+            }
+            try {
+                Thread.sleep(1000l);
+            } catch (InterruptedException e) {
+                e.printStackTrace(); 
+            }
+        }
+    }
 
     /**
      * Creates the application.
