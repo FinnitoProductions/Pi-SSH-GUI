@@ -1,8 +1,6 @@
 package window;
 
-import java.awt.Button;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -12,38 +10,26 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 
-import util.PrecisePoint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent.EventType;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.knowm.xchart.XChartPanel;
@@ -56,10 +42,7 @@ import util.FileUtil;
 import util.SSHUtil;
 import util.SetUtil;
 import wrappers.PipedWrapper;
-import wrappers.SmartDashboardEntry;
-import wrappers.SmartDashboardProcessor;
 import wrappers.SystemOutReader;
-import javax.swing.JScrollBar;
 import javax.swing.JRadioButton;
 
 /**
@@ -126,9 +109,9 @@ public class AppWindow {
     private Map<PageType, Set<Container>> pageContents;
 
     private Socket s;
-    
+
     private PageType currentPage;
-    
+
     private ButtonGroup graphButtons;
 
     /**
@@ -151,11 +134,6 @@ public class AppWindow {
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
 
         window.getMainFrame().setVisible(true);
-        window.addGraph("Graph 1");
-        window.addGraph("Graph 2");
-        window.addGraph("Graph 3");
-        window.addGraph("Graph 4");
-        window.addGraph("Graph 5");
 
         /*
          * for (double i = 0; i < 100000; i += .1) { window.positionGraph.addPoint(i, Math.pow(i, 2)); //
@@ -163,30 +141,16 @@ public class AppWindow {
          * Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); } }
          */
 
-        /*while (true) {
-            System.out.println(window.graphs);
-            if (window.getSession() == null || !window.getSession().isConnected()) {
-                try {
-                    SSHUtil.connectSSH(AppWindow.getInstance());
-                   
-                } catch (Exception e) {
-                    window.getLblSshConnected().setText("Pi Not Connected");
-                    window.getLblSshConnected().setForeground(Color.RED);
-                }
-            }
-            try {
-                Thread.sleep(1000l);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            /*SmartDashboardProcessor.addEntry (new SmartDashboardEntry(System.currentTimeMillis(), "Left Sensor Position", 10));
-            try {
-                Thread.sleep(50l);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }*/
+        /*
+         * while (true) { System.out.println(window.graphs); if (window.getSession() == null ||
+         * !window.getSession().isConnected()) { try { SSHUtil.connectSSH(AppWindow.getInstance());
+         * 
+         * } catch (Exception e) { window.getLblSshConnected().setText("Pi Not Connected");
+         * window.getLblSshConnected().setForeground(Color.RED); } } try { Thread.sleep(1000l); } catch
+         * (InterruptedException e) { e.printStackTrace(); } /*SmartDashboardProcessor.addEntry (new
+         * SmartDashboardEntry(System.currentTimeMillis(), "Left Sensor Position", 10)); try { Thread.sleep(50l); }
+         * catch (InterruptedException e) { // TODO Auto-generated catch block e.printStackTrace(); } }
+         */
 
     }
 
@@ -243,6 +207,7 @@ public class AppWindow {
 
         setupPages();
 
+        setupRobotSelector();
     }
 
     /**
@@ -323,15 +288,14 @@ public class AppWindow {
      */
     private void initializeGraph () {
         graphs = new HashSet<Grapher>();
-        graphButtons = new ButtonGroup();
-        
-        updateGraphList();
-        /*currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
-                Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y);
-        graphs.add(currentGraph);
-        Container c = currentGraph.getChartPanel();
-        mainFrame.getContentPane().add(c);
-        pageContents.get(PageType.GRAPHS).add(c);*/
+        //graphButtons = new ButtonGroup();
+
+        //updateGraphList();
+        /*
+         * currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
+         * Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y); graphs.add(currentGraph); Container c =
+         * currentGraph.getChartPanel(); mainFrame.getContentPane().add(c); pageContents.get(PageType.GRAPHS).add(c);
+         */
     }
 
     /**
@@ -855,6 +819,25 @@ public class AppWindow {
         SetUtil.addMultiple(pageContents.get(PageType.HOME), btnStop, btnRun, btnDeploy);
     }
 
+    private void setupRobotSelector () {
+        String[] petStrings = {"1", "2", "3"};
+
+        // Create the combo box, select item at index 4.
+        // Indices start at 0, so 4 specifies the pig.
+        JComboBox petList = new JComboBox(petStrings);
+        petList.setSelectedIndex(0);
+        petList.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                JComboBox cb = (JComboBox) arg0.getSource();
+                Integer selectedVal = Integer.parseInt((String) cb.getSelectedItem());
+            }
+        });
+        petList.setBounds(110, 100, 50, 20);
+        mainFrame.getContentPane().add(petList);
+        pageContents.get(PageType.HOME).add(petList);
+    }
+
     private void updateGraphList () {
         int startPositionY = 105;
         int deltaPositionY = 30;
@@ -865,7 +848,7 @@ public class AppWindow {
             rdbtnGraph.setBounds(71, startPositionY + deltaPositionY * currentPos++, 201, 35);
             graphButtons.add(rdbtnGraph);
             rdbtnGraph.addActionListener(new ActionListener() {
-            
+
                 @Override
                 public void actionPerformed (ActionEvent arg0) {
 
@@ -1152,7 +1135,7 @@ public class AppWindow {
         for (Container c : pageContents.get(PageType.GRAPHS))
             if ((c instanceof XChartPanel) && c.isVisible())
                 c.setVisible(false);
-        addToPage (PageType.GRAPHS, panel);
+        addToPage(PageType.GRAPHS, panel);
         updateGraphList();
         return true;
     }
@@ -1210,9 +1193,8 @@ public class AppWindow {
         getMainFrame().repaint();
         getMainFrame().getContentPane().repaint();
     }
-    
-    public void addToPage (PageType page, Container c)
-    {
+
+    public void addToPage (PageType page, Container c) {
         mainFrame.getContentPane().add(c);
         if (currentPage == page)
             c.setVisible(true);
