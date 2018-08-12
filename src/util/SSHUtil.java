@@ -33,7 +33,7 @@ public class SSHUtil {
         try {
             JSch jsch = new JSch();
 
-            window.setSession(jsch.getSession(Constants.PI_USER, Constants.PI_IP, Constants.PI_PORT));
+            window.setSession(jsch.getSession(Constants.PI_USER, window.getSelectedIP(), Constants.PI_PORT));
             window.getSession().setPassword(Constants.PI_PASSWORD);
             window.getSession().setConfig("StrictHostKeyChecking", "no");
             window.getLblSshConnected().setText("Connecting...");

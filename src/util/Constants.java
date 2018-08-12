@@ -10,7 +10,7 @@ import java.io.File;
 public class Constants {
     public static String PI_USER = "pi";
     public static String PI_PASSWORD = "team1072";
-    public static String PI_IP = "192.168.2.63";
+    public static String PI_IP = "192.168.0.63";
     public static int PI_PORT = 22;
 
     public static final int FRAME_LOC_X = 100;
@@ -19,10 +19,12 @@ public class Constants {
     public static final int FRAME_SIZE_Y = 600;
 
     public static final String INT_K_BIND_PATH = "/bindings.json";
+    public static final String INT_IP_BIND_PATH = "/ipbindings.json";
     public static final String USER_HOME = System.getProperty("user.home") + File.separator;
     public static final String EXT_DIR_NAME = "pi-ssh-app";
     public static final String EXT_DIR_PATH = USER_HOME + EXT_DIR_NAME;
     public static final String EXT_K_BIND_PATH = EXT_DIR_PATH + File.separator + "bindings.json";
+    public static final String EXT_IP_BIND_PATH = EXT_DIR_PATH + File.separator + "ipbindings.json";
     
     public static final String HOME_ICON_PATH = "/images/homeicon.png";
     public static final String GRAPH_ICON_PATH = "/images/graphicon.jpg";
@@ -48,7 +50,9 @@ public class Constants {
     public static final int GRAPH_SIZE_Y = 400;
     public static final int GRAPH_LOC_X = 275;
     public static final int GRAPH_LOC_Y = 50;
-
-
+    
+    public static final String IP_BIND_1_KEY = "1";
+    public static final String IP_BIND_2_KEY = "2";
+    public static final String IP_BIND_3_KEY = "3";
     
 }

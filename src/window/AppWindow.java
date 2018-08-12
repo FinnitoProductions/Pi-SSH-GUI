@@ -10,35 +10,26 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 
-import util.PrecisePoint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent.EventType;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.knowm.xchart.XChartPanel;
@@ -51,10 +42,7 @@ import util.FileUtil;
 import util.SSHUtil;
 import util.SetUtil;
 import wrappers.PipedWrapper;
-import wrappers.SmartDashboardEntry;
-import wrappers.SmartDashboardProcessor;
 import wrappers.SystemOutReader;
-import javax.swing.JScrollBar;
 import javax.swing.JRadioButton;
 
 /**
@@ -106,7 +94,13 @@ public class AppWindow {
     private JTextField oField;
     private JTextField qField;
 
-    private JSONObject jo;
+    private JLabel lblIPBindings;
+    private JTextField field1;
+    private JTextField field2;
+    private JTextField field3;
+
+    private JSONObject keyBindings;
+    private JSONObject ipBindings;
 
     private static AppWindow window;
 
@@ -121,8 +115,14 @@ public class AppWindow {
     private Map<PageType, Set<Container>> pageContents;
 
     private Socket s;
-    
+
     private PageType currentPage;
+
+    private ButtonGroup graphButtons;
+
+    private String selectedIP;
+    
+    private boolean shouldReconnect;
 
     /**
      * 
@@ -143,19 +143,15 @@ public class AppWindow {
         window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
 
-        window.getMainFrame().setVisible(true);
+        window.getMainFrame().setVisible(true); 
 
-        /*
-         * for (double i = 0; i < 100000; i += .1) { window.positionGraph.addPoint(i, Math.pow(i, 2)); //
-         * mainFrame.getContentPane().add(positionGraph.getChartPanel()); window.mainFrame.repaint(); try {
-         * Thread.sleep(5); } catch (InterruptedException e) { e.printStackTrace(); } }
-         */
-
+        
         while (true) {
             System.out.println(window.graphs);
-            if (window.getSession() == null || !window.getSession().isConnected()) {
+            if (window.shouldReconnect || window.getSession() == null || !window.getSession().isConnected()) {
                 try {
                     SSHUtil.connectSSH(AppWindow.getInstance());
+                    window.shouldReconnect = false;
                    
                 } catch (Exception e) {
                     window.getLblSshConnected().setText("Pi Not Connected");
@@ -165,48 +161,16 @@ public class AppWindow {
             try {
                 Thread.sleep(1000l);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                e.printStackTrace(); 
             }
-            /*SmartDashboardProcessor.addEntry (new SmartDashboardEntry(System.currentTimeMillis(), "Left Sensor Position", 10));
-            try {
-                Thread.sleep(50l);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }*/
         }
-
     }
 
     /**
      * Creates the application.
      */
+
     private AppWindow () {
-        initialize();
-    }
-
-    /**
-     * 
-     */
-    private void setupExternalFiles () {
-        new File(Constants.EXT_DIR_PATH).mkdir();
-        try {
-            File json = new File(Constants.EXT_K_BIND_PATH);
-            boolean newFile = json.createNewFile();
-
-            if (newFile)
-                FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH,
-                        FileUtil.getStringFromLocalFile(Constants.INT_K_BIND_PATH));
-        } catch (Exception e2) {
-            // TODO Auto-generated catch block
-            e2.printStackTrace();
-        }
-    }
-
-    /**
-     * Initializes the contents of the frame.
-     */
-    private void initialize () {
         pageContents = new HashMap<PageType, Set<Container>>();
         for (PageType p : PageType.values())
             pageContents.put(p, new HashSet<Container>());
@@ -215,22 +179,54 @@ public class AppWindow {
 
         displayMainFrame();
 
-        setupFileSelector();
+        setupKeyChecking();
 
-        displayDeployRunBtns();
+        setupHomePage();
 
         setupWarningLabels();
 
-        setupKeyBindings();
-
-        setupKeyChecking();
+        setupBindingsPage();
 
         outReader = new SystemOutReader();
 
         initializeGraph();
 
         setupPages();
+        
+        try {
+            selectedIP = ipBindings.getString(Constants.IP_BIND_1_KEY);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
+    /**
+     * 
+     */
+    private void setupExternalFiles () {
+        new File(Constants.EXT_DIR_PATH).mkdir();
+
+        FileUtil.setupExternalFile(Constants.EXT_K_BIND_PATH, Constants.INT_K_BIND_PATH);
+        FileUtil.setupExternalFile(Constants.EXT_IP_BIND_PATH, Constants.INT_IP_BIND_PATH);
+    }
+
+    /**
+     * 
+     */
+    private void setupBindingsPage () {
+        setupKeyBindings();
+
+        setupIpBindings();
+    }
+
+    /**
+     * 
+     */
+    private void setupHomePage () {
+        setupFileSelector();
+        displayDeployRunBtns();
+        setupRobotSelector();
     }
 
     /**
@@ -272,7 +268,7 @@ public class AppWindow {
     }
 
     private void showPage (PageType pt) {
-        currentPage = pt;;
+        currentPage = pt;
         for (Container c : pageContents.get(pt))
             c.setVisible(true);
     }
@@ -311,13 +307,14 @@ public class AppWindow {
      */
     private void initializeGraph () {
         graphs = new HashSet<Grapher>();
-        
-        /*currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
-                Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y);
-        graphs.add(currentGraph);
-        Container c = currentGraph.getChartPanel();
-        mainFrame.getContentPane().add(c);
-        pageContents.get(PageType.GRAPHS).add(c);*/
+        // graphButtons = new ButtonGroup();
+
+        // updateGraphList();
+        /*
+         * currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
+         * Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y); graphs.add(currentGraph); Container c =
+         * currentGraph.getChartPanel(); mainFrame.getContentPane().add(c); pageContents.get(PageType.GRAPHS).add(c);
+         */
     }
 
     /**
@@ -332,51 +329,51 @@ public class AppWindow {
                             && getClExec().isConnected()) {
                         if (e.getID() == KeyEvent.KEY_PRESSED) {
                             if (e.getKeyCode() == KeyEvent.VK_UP) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_UP_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_UP_KEY));
 
                             }
                             if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_DOWN_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_DOWN_KEY));
 
                             }
                             if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_LEFT_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_LEFT_KEY));
 
                             }
                             if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_RIGHT_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_RIGHT_KEY));
                             }
                             if (e.getKeyCode() == KeyEvent.VK_W) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_W_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_W_KEY));
                             }
                             if (e.getKeyCode() == KeyEvent.VK_A) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_A_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_A_KEY));
                             }
                             if (e.getKeyCode() == KeyEvent.VK_S) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_S_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_S_KEY));
                             }
                             if (e.getKeyCode() == KeyEvent.VK_D) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_D_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_D_KEY));
                             }
                             if (e.getKeyCode() == KeyEvent.VK_Q) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_Q_KEY));
                             }
                             if (e.getKeyCode() == KeyEvent.VK_O) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_O_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_O_KEY));
                             }
                         }
                         if (e.getID() == KeyEvent.KEY_RELEASED) {
                             if (e.getKeyCode() == KeyEvent.VK_W) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_Q_KEY));
                             }
                             if (e.getKeyCode() == KeyEvent.VK_A) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_Q_KEY));
                             }
                             if (e.getKeyCode() == KeyEvent.VK_S) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_Q_KEY));
                             }
                             if (e.getKeyCode() == KeyEvent.VK_D) {
-                                getSSHCommandValue().writeVal(jo.getString(Constants.K_BIND_Q_KEY));
+                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_Q_KEY));
                             }
                         }
                     }
@@ -389,6 +386,136 @@ public class AppWindow {
             }
         };
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
+    }
+
+    private void setupIpBindings () {
+        lblIPBindings = new JLabel("IP Bindings:");
+        lblIPBindings.setForeground(Color.ORANGE);
+        lblIPBindings.setFont(new Font("Tahoma", Font.PLAIN, 24));
+        lblIPBindings.setBounds(340, 51, 157, 32);
+        mainFrame.getContentPane().add(lblIPBindings);
+
+        try {
+            String fileContents = FileUtil.getStringFromExternalFile(Constants.EXT_IP_BIND_PATH);
+
+            ipBindings = new JSONObject(fileContents);
+
+        } catch (Exception e) {
+            getErrorLabel().setText(e.getMessage());
+            e.printStackTrace();
+        }
+        JLabel lbl1 = new JLabel("1:");
+        lbl1.setForeground(Color.ORANGE);
+        lbl1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lbl1.setBounds(340, 88, 26, 19);
+        mainFrame.getContentPane().add(lbl1);
+
+        field1 = new JTextField();
+        field1.setBounds(378, 88, 100, 19);
+        mainFrame.getContentPane().add(field1);
+        field1.setColumns(2);
+        try {
+            field1.setText(ipBindings == null ? "" : ipBindings.getString(Constants.IP_BIND_1_KEY));
+        } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+        JButton btnSave1 = new JButton("Save");
+        btnSave1.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        btnSave1.setBounds(497, 88, 61, 19);
+        mainFrame.getContentPane().add(btnSave1);
+        btnSave1.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                try {
+                    ipBindings.put(Constants.IP_BIND_1_KEY, field1.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_IP_BIND_PATH, ipBindings.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+
+        JLabel lbl2 = new JLabel("2:");
+        lbl2.setForeground(Color.ORANGE);
+        lbl2.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lbl2.setBounds(340, 128, 56, 19);
+        mainFrame.getContentPane().add(lbl2);
+
+        field2 = new JTextField();
+        try {
+            field2.setText(ipBindings == null ? "" : ipBindings.getString(Constants.IP_BIND_2_KEY));
+        } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+        field2.setColumns(2);
+        field2.setBounds(378, 128, 100, 19);
+        mainFrame.getContentPane().add(field2);
+
+        JButton btnSave2 = new JButton("Save");
+        btnSave2.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        btnSave2.setBounds(497, 128, 61, 19);
+        mainFrame.getContentPane().add(btnSave2);
+
+        btnSave2.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                try {
+                    ipBindings.put(Constants.IP_BIND_2_KEY, downArrowField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_IP_BIND_PATH, ipBindings.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+
+        JLabel lbl3 = new JLabel("3:");
+        lbl3.setForeground(Color.ORANGE);
+        lbl3.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lbl3.setBounds(340, 167, 56, 19);
+        mainFrame.getContentPane().add(lbl3);
+
+        field3 = new JTextField();
+        try {
+            field3.setText(ipBindings == null ? "" : ipBindings.getString(Constants.IP_BIND_3_KEY));
+        } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        field3.setColumns(2);
+        field3.setBounds(378, 167, 100, 19);
+        mainFrame.getContentPane().add(field3);
+
+        JButton btnSave3 = new JButton("Save");
+        btnSave3.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        btnSave3.setBounds(497, 164, 61, 19);
+        mainFrame.getContentPane().add(btnSave3);
+
+        btnSave3.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                try {
+                    ipBindings.put(Constants.IP_BIND_3_KEY, field3.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_IP_BIND_PATH, ipBindings.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+
+        SetUtil.addMultiple(pageContents.get(PageType.BINDINGS), lblIPBindings,
+                lbl1, field1, btnSave1,
+                lbl2, field2, btnSave2,
+                lbl3, field3, btnSave3);
     }
 
     /**
@@ -404,7 +531,7 @@ public class AppWindow {
         try {
             String fileContents = FileUtil.getStringFromExternalFile(Constants.EXT_K_BIND_PATH);
 
-            jo = new JSONObject(fileContents);
+            keyBindings = new JSONObject(fileContents);
 
         } catch (Exception e) {
             getErrorLabel().setText(e.getMessage());
@@ -421,7 +548,7 @@ public class AppWindow {
         mainFrame.getContentPane().add(upArrowField);
         upArrowField.setColumns(2);
         try {
-            upArrowField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_UP_KEY));
+            upArrowField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_UP_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -436,8 +563,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_UP_KEY, upArrowField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_UP_KEY, upArrowField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -453,7 +580,7 @@ public class AppWindow {
 
         downArrowField = new JTextField();
         try {
-            downArrowField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_DOWN_KEY));
+            downArrowField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_DOWN_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -473,8 +600,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_DOWN_KEY, downArrowField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_DOWN_KEY, downArrowField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -490,7 +617,7 @@ public class AppWindow {
 
         leftArrowField = new JTextField();
         try {
-            leftArrowField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_LEFT_KEY));
+            leftArrowField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_LEFT_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -509,8 +636,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_LEFT_KEY, leftArrowField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_LEFT_KEY, leftArrowField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -526,7 +653,7 @@ public class AppWindow {
 
         rightArrowField = new JTextField();
         try {
-            rightArrowField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_RIGHT_KEY));
+            rightArrowField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_RIGHT_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -545,8 +672,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_RIGHT_KEY, rightArrowField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_RIGHT_KEY, rightArrowField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -562,7 +689,7 @@ public class AppWindow {
 
         wField = new JTextField();
         try {
-            wField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_W_KEY));
+            wField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_W_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -581,8 +708,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_W_KEY, wField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_W_KEY, wField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -598,7 +725,7 @@ public class AppWindow {
 
         aField = new JTextField();
         try {
-            aField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_A_KEY));
+            aField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_A_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -617,8 +744,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_A_KEY, aField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_A_KEY, aField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -634,7 +761,7 @@ public class AppWindow {
 
         sField = new JTextField();
         try {
-            sField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_S_KEY));
+            sField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_S_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -653,8 +780,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_S_KEY, sField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_S_KEY, sField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -670,7 +797,7 @@ public class AppWindow {
 
         dField = new JTextField();
         try {
-            dField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_D_KEY));
+            dField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_D_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -689,8 +816,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_D_KEY, dField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_D_KEY, dField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -706,7 +833,7 @@ public class AppWindow {
 
         oField = new JTextField();
         try {
-            oField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_O_KEY));
+            oField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_O_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -725,8 +852,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_O_KEY, oField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_O_KEY, oField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -742,7 +869,7 @@ public class AppWindow {
 
         qField = new JTextField();
         try {
-            qField.setText(jo == null ? "" : jo.getString(Constants.K_BIND_Q_KEY));
+            qField.setText(keyBindings == null ? "" : keyBindings.getString(Constants.K_BIND_Q_KEY));
         } catch (JSONException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -761,8 +888,8 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    jo.put(Constants.K_BIND_Q_KEY, qField.getText());
-                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, jo.toString());
+                    keyBindings.put(Constants.K_BIND_Q_KEY, qField.getText());
+                    FileUtil.writeStringToFile(Constants.EXT_K_BIND_PATH, keyBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -841,13 +968,41 @@ public class AppWindow {
         SetUtil.addMultiple(pageContents.get(PageType.HOME), btnStop, btnRun, btnDeploy);
     }
 
+    private void setupRobotSelector () {
+        String[] optionList = {"1", "2", "3"};
+
+        // Create the combo box, select item at index 4.
+        // Indices start at 0, so 4 specifies the pig.
+        JComboBox optionBox = new JComboBox(optionList);
+        optionBox.setSelectedIndex(0);
+        optionBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed (ActionEvent arg0) {
+                JComboBox cb = (JComboBox) arg0.getSource();
+                String selectedVal = (String) cb.getSelectedItem();
+                try {
+                    setSelectedIP(ipBindings.get(selectedVal).toString());
+                    shouldReconnect = true;
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
+        optionBox.setBounds(110, 100, 50, 20);
+        mainFrame.getContentPane().add(optionBox);
+        pageContents.get(PageType.HOME).add(optionBox);
+    }
+
     private void updateGraphList () {
         int startPositionY = 105;
         int deltaPositionY = 30;
         int currentPos = 0;
         for (Grapher g : graphs) {
             JRadioButton rdbtnGraph = new JRadioButton(g.getTitle());
+            System.out.println(g.getTitle());
             rdbtnGraph.setBounds(71, startPositionY + deltaPositionY * currentPos++, 201, 35);
+            graphButtons.add(rdbtnGraph);
             rdbtnGraph.addActionListener(new ActionListener() {
 
                 @Override
@@ -859,6 +1014,7 @@ public class AppWindow {
             window.getMainFrame().getContentPane().add(rdbtnGraph);
             pageContents.get(PageType.GRAPHS).add(rdbtnGraph);
         }
+        System.out.println();
     }
 
     /**
@@ -1135,7 +1291,8 @@ public class AppWindow {
         for (Container c : pageContents.get(PageType.GRAPHS))
             if ((c instanceof XChartPanel) && c.isVisible())
                 c.setVisible(false);
-        addToPage (PageType.GRAPHS, panel);
+        addToPage(PageType.GRAPHS, panel);
+        updateGraphList();
         return true;
     }
 
@@ -1192,14 +1349,31 @@ public class AppWindow {
         getMainFrame().repaint();
         getMainFrame().getContentPane().repaint();
     }
-    
-    public void addToPage (PageType page, Container c)
-    {
+
+    public void addToPage (PageType page, Container c) {
         mainFrame.getContentPane().add(c);
         if (currentPage == page)
             c.setVisible(true);
         else
             c.setVisible(false);
+    }
+
+    /**
+     * Gets the selectedIP.
+     * @return the selectedIP
+     */
+    public String getSelectedIP () {
+        return selectedIP;
+    }
+
+    /**
+     * Sets selectedIP to a given value.
+     * @param selectedIP the selectedIP to set
+     *
+     * @postcondition the selectedIP has been changed to the newly passed in selectedIP
+     */
+    public void setSelectedIP (String selectedIP) {
+        this.selectedIP = selectedIP;
     }
 
 }
