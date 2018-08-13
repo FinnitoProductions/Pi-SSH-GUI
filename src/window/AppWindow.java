@@ -467,7 +467,7 @@ public class AppWindow {
             @Override
             public void actionPerformed (ActionEvent arg0) {
                 try {
-                    ipBindings.put(Constants.IP_BIND_2_KEY, downArrowField.getText());
+                    ipBindings.put(Constants.IP_BIND_2_KEY, field2.getText());
                     FileUtil.writeStringToFile(Constants.EXT_IP_BIND_PATH, ipBindings.toString());
                 } catch (Exception e) {
                     e.printStackTrace();

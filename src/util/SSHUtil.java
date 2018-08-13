@@ -30,6 +30,7 @@ public class SSHUtil {
      * @param window the window class which will be used to connect
      */
     public static void connectSSH (AppWindow window) {
+        System.out.println("CONNECTING TO " + window.getSelectedIP());
         try {
             JSch jsch = new JSch();
 
