@@ -951,6 +951,7 @@ public class AppWindow {
                 SSHUtil.runCode(AppWindow.getInstance(), getFileTransfer());
                 btnRun.setEnabled(false);
                 btnStop.setEnabled(true);
+                resetErrorLabel();
             }
         });
         getBtnRun().setBounds(544, 482, 78, 35);
@@ -963,6 +964,7 @@ public class AppWindow {
                 AppWindow.getInstance().getSSHCommandValue().writeVal(Constants.K_BIND_STOP_CHAR);
                 btnRun.setEnabled(true);
                 btnStop.setEnabled(false);
+                resetErrorLabel();
             }
         });
         btnStop.setEnabled(false);
@@ -988,6 +990,7 @@ public class AppWindow {
                     SSHUtil.stopConnecting();
                     setSelectedIP(ipBindings.get(selectedVal).toString());
                     shouldReconnect = true;
+                    resetErrorLabel();
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -1397,6 +1400,11 @@ public class AppWindow {
      */
     public void setCanReconnect (boolean canReconnect) {
         this.canReconnect = canReconnect;
+    }
+    
+    public void resetErrorLabel ()
+    {
+        errorLabel.setText("");
     }
 
 }
