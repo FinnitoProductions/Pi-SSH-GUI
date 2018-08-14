@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.net.Socket;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
@@ -65,24 +66,13 @@ public class SSHUtil {
     public static void runCode (AppWindow window, File f) {
         if (window.getSession().isConnected() && f != null) {
             try {
-                window.setClExec(window.getSession().openChannel("exec"));
-                // window.clExecReadOutput = window.getSession().openChannel("exec");
-
-                // if (window.getSystemOut() != null)
-                // window.getSystemOut().stop();
-                window.setSystemOut(new PipedWrapper());
-                window.getClExec().setOutputStream(window.getSystemOut().getOutputStream());
-
-                // if (window.getSSHCommandValue() != null)
-                // window.getSSHCommandValue().stop();
-                window.setSSHCommandValue(new PipedWrapper());
-                window.getClExec().setInputStream(window.getSSHCommandValue().getInputStream());
                 ((ChannelExec) window.getClExec()).setCommand("sudo java -jar " + f.getName());
                 window.getClExec().connect();
-
-                // window.clExecReadOutput.connect();
-            } catch (JSchException e) {
+                window.closePiSocket();
+                window.setPiSocket(new Socket(window.getSelectedIP(), Constants.SOCKET_PORT));
+            } catch (Exception e) {
                 window.getErrorLabel().setText("ERROR: Code could not be run.");
+                e.printStackTrace();
             }
 
         }

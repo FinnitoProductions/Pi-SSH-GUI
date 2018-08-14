@@ -57,4 +57,6 @@ public class Constants {
     
     public static final String BINDINGS_INIT_CONTENT = "{\"A\":\"a\",\"S\":\"s\",\"D\":\"d\",\"left\":\"j\",\"W\":\"w\", \"Q\": \"q\", \"O\": \"o\", \"up\":\"i\",\"right\":\"l\",\"down\":\"k\"}";
     public static final String IP_INIT_CONTENT = "{\"1\": \"10.12.47.63\", \"2\": \"10.12.47.64\", \"3\": \"10.12.47.65\"}";
+
+    public static final int SOCKET_PORT = 5512;
 }

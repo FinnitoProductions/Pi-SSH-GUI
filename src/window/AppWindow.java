@@ -125,6 +125,8 @@ public class AppWindow {
     private boolean shouldReconnect;
 
     private boolean canReconnect;
+    
+    private Socket piSocket;
 
     /**
      * 
@@ -154,6 +156,12 @@ public class AppWindow {
 
         window.getMainFrame().setVisible(true);
 
+        Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
+            try {
+                window.closePiSocket();
+            } catch (IOException e) {}
+        }});
+        
         while (true) {
             System.out.println(window.graphs);
             if (window.shouldReconnect || window.getSession() == null || !window.getSession().isConnected()) {
@@ -1416,5 +1424,29 @@ public class AppWindow {
 
     public void resetErrorLabel () {
         errorLabel.setText("");
+    }
+
+    /**
+     * Gets the piSocket.
+     * @return the piSocket
+     */
+    public Socket getPiSocket () {
+        return piSocket;
+    }
+
+    /**
+     * Sets piSocket to a given value.
+     * @param piSocket the piSocket to set
+     *
+     * @postcondition the piSocket has been changed to the newly passed in piSocket
+     */
+    public void setPiSocket (Socket piSocket) {
+        this.piSocket = piSocket;
+    }
+    
+    public void closePiSocket () throws IOException
+    {
+        if (piSocket != null && piSocket.isConnected())
+            piSocket.close();
     }
 }
