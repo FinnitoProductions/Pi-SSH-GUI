@@ -296,7 +296,7 @@ public class AppWindow {
         try {
             JButton b = new JButton(new ImageIcon(
                     ImageIO.read(getClass().getResource(fileLocation)).getScaledInstance(50, 50, Image.SCALE_DEFAULT)));
-            b.setVisible(true);;
+            b.setVisible(true);
             // to remote the spacing between the image and button's borders
             b.setMargin(new Insets(0, 0, 0, 0));
             // to remove the border
