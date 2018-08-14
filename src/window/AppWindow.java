@@ -320,11 +320,11 @@ public class AppWindow {
         // graphButtons = new ButtonGroup();
 
         // updateGraphList();
-        /*
-         * currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
-         * Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y); graphs.add(currentGraph); Container c =
-         * currentGraph.getChartPanel(); mainFrame.getContentPane().add(c); pageContents.get(PageType.GRAPHS).add(c);
-         */
+        
+         currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
+         Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y); graphs.add(currentGraph); Container c =
+         currentGraph.getChartPanel(); mainFrame.getContentPane().add(c); pageContents.get(PageType.GRAPHS).add(c);
+         
     }
 
     /**
