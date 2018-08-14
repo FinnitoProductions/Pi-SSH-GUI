@@ -121,8 +121,10 @@ public class AppWindow {
     private ButtonGroup graphButtons;
 
     private String selectedIP;
-    
+
     private boolean shouldReconnect;
+    
+    private boolean canReconnect;
 
     /**
      * 
@@ -143,16 +145,15 @@ public class AppWindow {
         window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
 
-        window.getMainFrame().setVisible(true); 
+        window.getMainFrame().setVisible(true);
 
-        
         while (true) {
             System.out.println(window.graphs);
             if (window.shouldReconnect || window.getSession() == null || !window.getSession().isConnected()) {
                 try {
                     SSHUtil.connectSSH(AppWindow.getInstance());
                     window.shouldReconnect = false;
-                   
+
                 } catch (Exception e) {
                     window.getLblSshConnected().setText("Pi Not Connected");
                     window.getLblSshConnected().setForeground(Color.RED);
@@ -161,7 +162,7 @@ public class AppWindow {
             try {
                 Thread.sleep(1000l);
             } catch (InterruptedException e) {
-                e.printStackTrace(); 
+                e.printStackTrace();
             }
         }
     }
@@ -171,6 +172,8 @@ public class AppWindow {
      */
 
     private AppWindow () {
+        canReconnect = true;
+        
         pageContents = new HashMap<PageType, Set<Container>>();
         for (PageType p : PageType.values())
             pageContents.put(p, new HashSet<Container>());
@@ -192,7 +195,7 @@ public class AppWindow {
         initializeGraph();
 
         setupPages();
-        
+
         try {
             selectedIP = ipBindings.getString(Constants.IP_BIND_1_KEY);
         } catch (JSONException e) {
@@ -329,6 +332,7 @@ public class AppWindow {
                             && getClExec().isConnected()) {
                         if (e.getID() == KeyEvent.KEY_PRESSED) {
                             if (e.getKeyCode() == KeyEvent.VK_UP) {
+                                
                                 getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_UP_KEY));
 
                             }
@@ -981,6 +985,7 @@ public class AppWindow {
                 JComboBox cb = (JComboBox) arg0.getSource();
                 String selectedVal = (String) cb.getSelectedItem();
                 try {
+                    SSHUtil.stopConnecting();
                     setSelectedIP(ipBindings.get(selectedVal).toString());
                     shouldReconnect = true;
                 } catch (JSONException e) {
@@ -1374,6 +1379,24 @@ public class AppWindow {
      */
     public void setSelectedIP (String selectedIP) {
         this.selectedIP = selectedIP;
+    }
+
+    /**
+     * Gets the canReconnect.
+     * @return the canReconnect
+     */
+    public boolean canReconnect () {
+        return canReconnect;
+    }
+
+    /**
+     * Sets canReconnect to a given value.
+     * @param canReconnect the canReconnect to set
+     *
+     * @postcondition the canReconnect has been changed to the newly passed in canReconnect
+     */
+    public void setCanReconnect (boolean canReconnect) {
+        this.canReconnect = canReconnect;
     }
 
 }

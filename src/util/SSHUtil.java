@@ -14,6 +14,7 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
 import window.AppWindow;
+import wrappers.ConnectionThread;
 import wrappers.PipedWrapper;
 
 /**
@@ -23,6 +24,9 @@ import wrappers.PipedWrapper;
  * @version Aug 3, 2018
  */
 public class SSHUtil {
+    private static Thread connectionThread;
+    private static AppWindow connectingWindow;
+    private static boolean canReconnect;
 
     /**
      * Forms the initial SSH connection with the Pi.
@@ -30,30 +34,11 @@ public class SSHUtil {
      * @param window the window class which will be used to connect
      */
     public static void connectSSH (AppWindow window) {
-        System.out.println("CONNECTING TO " + window.getSelectedIP());
-        try {
-            JSch jsch = new JSch();
-
-            window.setSession(jsch.getSession(Constants.PI_USER, window.getSelectedIP(), Constants.PI_PORT));
-            window.getSession().setPassword(Constants.PI_PASSWORD);
-            window.getSession().setConfig("StrictHostKeyChecking", "no");
-            window.getLblSshConnected().setText("Connecting...");
-
-            window.getLblSshConnected().setForeground(Color.BLUE);
-            window.getSession().connect();
-
-            if (window.getSession().isConnected()) {
-                window.getLblSshConnected().setText("Pi Connected");
-                window.getLblSshConnected().setForeground(new Color(105, 196, 80));
-                Font f = window.getLblSshConnected().getFont();
-                window.getLblSshConnected().setFont(f.deriveFont(f.getStyle() | Font.BOLD));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            window.getLblSshConnected().setText("Pi Not Connected");
-            window.getLblSshConnected().setForeground(Color.RED);
-            window.getBtnDeploy().setEnabled(false);
-            window.getBtnRun().setEnabled(false);
+        if (window.canReconnect()) {
+            System.out.println("CONNECTING TO " + window.getSelectedIP());
+            connectingWindow = window;
+            window.setCanReconnect(false);
+            (connectionThread = new ConnectionThread(window)).start();
         }
     }
 
@@ -81,26 +66,36 @@ public class SSHUtil {
         if (window.getSession().isConnected() && f != null) {
             try {
                 window.setClExec(window.getSession().openChannel("exec"));
-                //window.clExecReadOutput = window.getSession().openChannel("exec");
-                
-                //if (window.getSystemOut() != null)
-                    //window.getSystemOut().stop();
+                // window.clExecReadOutput = window.getSession().openChannel("exec");
+
+                // if (window.getSystemOut() != null)
+                // window.getSystemOut().stop();
                 window.setSystemOut(new PipedWrapper());
                 window.getClExec().setOutputStream(window.getSystemOut().getOutputStream());
-                
-                //if (window.getSSHCommandValue() != null)
-                    //window.getSSHCommandValue().stop();
+
+                // if (window.getSSHCommandValue() != null)
+                // window.getSSHCommandValue().stop();
                 window.setSSHCommandValue(new PipedWrapper());
                 window.getClExec().setInputStream(window.getSSHCommandValue().getInputStream());
                 ((ChannelExec) window.getClExec()).setCommand("sudo java -jar " + f.getName());
                 window.getClExec().connect();
-                
-                //window.clExecReadOutput.connect();
+
+                // window.clExecReadOutput.connect();
             } catch (JSchException e) {
                 window.getErrorLabel().setText("ERROR: Code could not be run.");
             }
 
         }
+    }
+
+    public static Thread getConnectionThread () {
+        return connectionThread;
+    }
+
+    public static void stopConnecting () {
+        getConnectionThread().stop();
+        connectingWindow.setCanReconnect(true);
+        connectingWindow.getLblSshConnected().setText("Changing Connection...");
     }
 
 }
