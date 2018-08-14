@@ -144,6 +144,13 @@ public class AppWindow {
 
         window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
+        
+        JLabel lblRobotNumber = new JLabel("Robot Number:");
+        lblRobotNumber.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        lblRobotNumber.setForeground(Color.ORANGE);
+        lblRobotNumber.setBounds(95, 97, 139, 26);
+        window.pageContents.get(PageType.HOME).add(lblRobotNumber);
+        window.getMainFrame().getContentPane().add(lblRobotNumber);
 
         window.getMainFrame().setVisible(true);
 
@@ -980,6 +987,7 @@ public class AppWindow {
         // Create the combo box, select item at index 4.
         // Indices start at 0, so 4 specifies the pig.
         JComboBox optionBox = new JComboBox(optionList);
+        optionBox.setFont(new Font("Tahoma", Font.PLAIN, 16));
         optionBox.setSelectedIndex(0);
         optionBox.addActionListener(new ActionListener() {
             @Override
@@ -997,7 +1005,7 @@ public class AppWindow {
                 }
             }
         });
-        optionBox.setBounds(110, 100, 50, 20);
+        optionBox.setBounds(221, 97, 50, 26);
         mainFrame.getContentPane().add(optionBox);
         pageContents.get(PageType.HOME).add(optionBox);
     }
@@ -1406,5 +1414,4 @@ public class AppWindow {
     {
         errorLabel.setText("");
     }
-
 }
