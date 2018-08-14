@@ -123,7 +123,7 @@ public class AppWindow {
     private String selectedIP;
 
     private boolean shouldReconnect;
-    
+
     private boolean canReconnect;
 
     /**
@@ -144,7 +144,7 @@ public class AppWindow {
 
         window.getMainFrame().setTitle("Raspberry Pi SSH Deploy");
         window.getMainFrame().getContentPane().setBackground(Color.BLACK);
-        
+
         JLabel lblRobotNumber = new JLabel("Robot Number:");
         lblRobotNumber.setFont(new Font("Tahoma", Font.PLAIN, 16));
         lblRobotNumber.setForeground(Color.ORANGE);
@@ -180,7 +180,7 @@ public class AppWindow {
 
     private AppWindow () {
         canReconnect = true;
-        
+
         pageContents = new HashMap<PageType, Set<Container>>();
         for (PageType p : PageType.values())
             pageContents.put(p, new HashSet<Container>());
@@ -206,7 +206,6 @@ public class AppWindow {
         try {
             selectedIP = ipBindings.getString(Constants.IP_BIND_1_KEY);
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -217,8 +216,10 @@ public class AppWindow {
     private void setupExternalFiles () {
         new File(Constants.EXT_DIR_PATH).mkdir();
 
-        FileUtil.setupExternalFile(Constants.EXT_K_BIND_PATH, Constants.INT_K_BIND_PATH);
-        FileUtil.setupExternalFile(Constants.EXT_IP_BIND_PATH, Constants.INT_IP_BIND_PATH);
+        FileUtil.setupExternalFileFromContents
+        (Constants.EXT_K_BIND_PATH, Constants.BINDINGS_INIT_CONTENT);
+        FileUtil.setupExternalFileFromContents
+        (Constants.EXT_IP_BIND_PATH, Constants.IP_INIT_CONTENT);
     }
 
     /**
@@ -320,11 +321,14 @@ public class AppWindow {
         // graphButtons = new ButtonGroup();
 
         // updateGraphList();
-        
-         currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
-         Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y); graphs.add(currentGraph); Container c =
-         currentGraph.getChartPanel(); mainFrame.getContentPane().add(c); pageContents.get(PageType.GRAPHS).add(c);
-         
+
+        currentGraph = new Grapher("", "Time", "", "Pi Bot", Constants.GRAPH_SIZE_X, Constants.GRAPH_SIZE_Y,
+                Constants.GRAPH_LOC_X, Constants.GRAPH_LOC_Y);
+        graphs.add(currentGraph);
+        Container c = currentGraph.getChartPanel();
+        mainFrame.getContentPane().add(c);
+        pageContents.get(PageType.GRAPHS).add(c);
+
     }
 
     /**
@@ -339,7 +343,7 @@ public class AppWindow {
                             && getClExec().isConnected()) {
                         if (e.getID() == KeyEvent.KEY_PRESSED) {
                             if (e.getKeyCode() == KeyEvent.VK_UP) {
-                                
+
                                 getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_UP_KEY));
 
                             }
@@ -1409,9 +1413,8 @@ public class AppWindow {
     public void setCanReconnect (boolean canReconnect) {
         this.canReconnect = canReconnect;
     }
-    
-    public void resetErrorLabel ()
-    {
+
+    public void resetErrorLabel () {
         errorLabel.setText("");
     }
 }

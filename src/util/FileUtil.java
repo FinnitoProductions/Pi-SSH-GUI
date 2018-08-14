@@ -72,13 +72,23 @@ public class FileUtil {
      * @param externalPath the external path
      * @param internalPath the path of the internal file
      */
-    public static void setupExternalFile (String externalPath, String internalPath) {
+    public static void setupExternalFileFromPath (String externalPath, String internalPath) {
+            try {
+                setupExternalFileFromPath(externalPath,
+                        getStringFromLocalFile(internalPath));
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+    }
+
+    public static void setupExternalFileFromContents (String externalPath, String contents) {
         try {
             File json = new File(externalPath);
 
             if (json.createNewFile())
                 writeStringToFile(externalPath,
-                        getStringFromLocalFile(internalPath));
+                        contents);
         } catch (Exception e2) {
             // TODO Auto-generated catch block
             e2.printStackTrace();
@@ -89,7 +99,7 @@ public class FileUtil {
      * Deletes the file at the given path.
      * @param path the path of the file to be deleted
      */
-    public static void deleteFile (String path) { 
+    public static void deleteFile (String path) {
         new File(path).delete();
     }
 
