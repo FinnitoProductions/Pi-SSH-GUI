@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.net.ConnectException;
 import java.net.Socket;
 
 import com.jcraft.jsch.ChannelExec;
@@ -66,10 +67,26 @@ public class SSHUtil {
     public static void runCode (AppWindow window, File f) {
         if (window.getSession().isConnected() && f != null) {
             try {
+                window.setClExec(window.getSession().openChannel("exec"));
+                window.getClExec().setOutputStream(System.out);
                 ((ChannelExec) window.getClExec()).setCommand("sudo java -jar " + f.getName());
                 window.getClExec().connect();
                 window.closePiSocket();
-                window.setPiSocket(new Socket(window.getSelectedIP(), Constants.SOCKET_PORT));
+                
+                Thread.sleep(1000);
+                boolean isReady = false;
+                while (!isReady)
+                {
+                    try {
+                        System.out.println("trying to connect again");
+                        window.setPiSocket(new Socket(window.getSelectedIP(), Constants.SOCKET_PORT));
+                        System.out.println("socket connected");
+                        isReady = true;
+                    } catch (ConnectException e)
+                    {
+                        Thread.sleep(50l);
+                    }
+                } 
             } catch (Exception e) {
                 window.getErrorLabel().setText("ERROR: Code could not be run.");
                 e.printStackTrace();
