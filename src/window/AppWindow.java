@@ -130,6 +130,7 @@ public class AppWindow {
     private boolean canReconnect;
 
     private Socket piSocket;
+    private PrintWriter socketWriter;
 
     /**
      * 
@@ -166,26 +167,18 @@ public class AppWindow {
                 } catch (IOException e) {}
             }
         });
-
         while (true) {
+            System.out.println("loop going");
             if (window.getPiSocket() != null) {
                 System.out.println(window.getPiSocket().isConnected());
-                try {
-                    PrintWriter pw = new PrintWriter(new OutputStreamWriter(window.getPiSocket().getOutputStream()));
-                    pw.println("testing");
-                    pw.flush();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
 
-            }
-            else
+
+            } else
                 System.out.println("null sock");
             if (window.shouldReconnect || window.getSession() == null || !window.getSession().isConnected()) {
                 try {
                     SSHUtil.connectSSH(AppWindow.getInstance());
-                    window.shouldReconnect = false; 
+                    window.shouldReconnect = false;
 
                 } catch (Exception e) {
                     window.getLblSshConnected().setText("Pi Not Connected");
@@ -367,8 +360,8 @@ public class AppWindow {
                             && getClExec().isConnected()) {
                         if (e.getID() == KeyEvent.KEY_PRESSED) {
                             if (e.getKeyCode() == KeyEvent.VK_UP) {
-
-                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_UP_KEY));
+                                //window.socketWriter.println(keyBindings.getString(Constants.K_BIND_UP_KEY));
+                                //getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_UP_KEY));
 
                             }
                             if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -1463,5 +1456,9 @@ public class AppWindow {
     public void closePiSocket () throws IOException {
         if (piSocket != null && piSocket.isConnected())
             piSocket.close();
+    }
+
+    public void setSocketWriter (PrintWriter pw) {
+        socketWriter = pw;
     }
 }

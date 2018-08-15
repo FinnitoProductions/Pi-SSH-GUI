@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 
@@ -68,7 +70,9 @@ public class SSHUtil {
         if (window.getSession().isConnected() && f != null) {
             try {
                 window.setClExec(window.getSession().openChannel("exec"));
-                window.getClExec().setOutputStream(System.out);
+                File file = new File(Constants.EXT_DIR_PATH + File.separator + "output.txt");
+                f.createNewFile();
+                window.getClExec().setOutputStream(new FileOutputStream(file));
                 ((ChannelExec) window.getClExec()).setCommand("sudo java -jar " + f.getName());
                 window.getClExec().connect();
                 window.closePiSocket();
@@ -80,6 +84,7 @@ public class SSHUtil {
                     try {
                         System.out.println("trying to connect again");
                         window.setPiSocket(new Socket(window.getSelectedIP(), Constants.SOCKET_PORT));
+                        window.setSocketWriter(new PrintWriter(window.getPiSocket().getOutputStream()));
                         System.out.println("socket connected");
                         isReady = true;
                     } catch (ConnectException e)
