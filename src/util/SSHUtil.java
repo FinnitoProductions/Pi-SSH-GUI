@@ -4,7 +4,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.net.ConnectException;
+import java.net.Socket;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
@@ -66,23 +70,31 @@ public class SSHUtil {
         if (window.getSession().isConnected() && f != null) {
             try {
                 window.setClExec(window.getSession().openChannel("exec"));
-                // window.clExecReadOutput = window.getSession().openChannel("exec");
-
-                // if (window.getSystemOut() != null)
-                // window.getSystemOut().stop();
-                window.setSystemOut(new PipedWrapper());
-                window.getClExec().setOutputStream(window.getSystemOut().getOutputStream());
-
-                // if (window.getSSHCommandValue() != null)
-                // window.getSSHCommandValue().stop();
-                window.setSSHCommandValue(new PipedWrapper());
-                window.getClExec().setInputStream(window.getSSHCommandValue().getInputStream());
+                File file = new File(Constants.EXT_DIR_PATH + File.separator + "output.txt");
+                f.createNewFile();
+                window.getClExec().setOutputStream(new FileOutputStream(file));
                 ((ChannelExec) window.getClExec()).setCommand("sudo java -jar " + f.getName());
                 window.getClExec().connect();
-
-                // window.clExecReadOutput.connect();
-            } catch (JSchException e) {
+                window.closePiSocket();
+                
+                Thread.sleep(1000);
+                boolean isReady = false;
+                while (!isReady)
+                {
+                    try {
+                        System.out.println("trying to connect again");
+                        window.setPiSocket(new Socket(window.getSelectedIP(), Constants.SOCKET_PORT));
+                        window.setSocketWriter(new PrintWriter(window.getPiSocket().getOutputStream()));
+                        System.out.println("socket connected");
+                        isReady = true;
+                    } catch (ConnectException e)
+                    {
+                        Thread.sleep(50l);
+                    }
+                } 
+            } catch (Exception e) {
                 window.getErrorLabel().setText("ERROR: Code could not be run.");
+                e.printStackTrace();
             }
 
         }

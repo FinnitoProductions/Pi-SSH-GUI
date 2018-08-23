@@ -15,6 +15,7 @@ import window.AppWindow;
  * @version Aug 3, 2018
  */
 public class FileUtil {
+    
     /**
      * Converts the contents of a given external file (stored in a directory not linked to the project) into a String
      * format.
@@ -73,13 +74,13 @@ public class FileUtil {
      * @param internalPath the path of the internal file
      */
     public static void setupExternalFileFromPath (String externalPath, String internalPath) {
-            try {
-                setupExternalFileFromPath(externalPath,
-                        getStringFromLocalFile(internalPath));
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        try {
+            setupExternalFileFromPath(externalPath,
+                    getStringFromLocalFile(internalPath));
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     public static void setupExternalFileFromContents (String externalPath, String contents) {

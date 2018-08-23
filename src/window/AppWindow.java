@@ -13,8 +13,11 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -126,6 +129,9 @@ public class AppWindow {
 
     private boolean canReconnect;
 
+    private Socket piSocket;
+    private PrintWriter socketWriter;
+
     /**
      * 
      * @author Finn Frankis
@@ -154,8 +160,21 @@ public class AppWindow {
 
         window.getMainFrame().setVisible(true);
 
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run () {
+                try {
+                    window.closePiSocket();
+                } catch (IOException e) {}
+            }
+        });
         while (true) {
-            System.out.println(window.graphs);
+            System.out.println("loop going");
+            if (window.getPiSocket() != null) {
+                System.out.println(window.getPiSocket().isConnected());
+
+
+            } else
+                System.out.println("null sock");
             if (window.shouldReconnect || window.getSession() == null || !window.getSession().isConnected()) {
                 try {
                     SSHUtil.connectSSH(AppWindow.getInstance());
@@ -216,10 +235,8 @@ public class AppWindow {
     private void setupExternalFiles () {
         new File(Constants.EXT_DIR_PATH).mkdir();
 
-        FileUtil.setupExternalFileFromContents
-        (Constants.EXT_K_BIND_PATH, Constants.BINDINGS_INIT_CONTENT);
-        FileUtil.setupExternalFileFromContents
-        (Constants.EXT_IP_BIND_PATH, Constants.IP_INIT_CONTENT);
+        FileUtil.setupExternalFileFromContents(Constants.EXT_K_BIND_PATH, Constants.BINDINGS_INIT_CONTENT);
+        FileUtil.setupExternalFileFromContents(Constants.EXT_IP_BIND_PATH, Constants.IP_INIT_CONTENT);
     }
 
     /**
@@ -343,8 +360,8 @@ public class AppWindow {
                             && getClExec().isConnected()) {
                         if (e.getID() == KeyEvent.KEY_PRESSED) {
                             if (e.getKeyCode() == KeyEvent.VK_UP) {
-
-                                getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_UP_KEY));
+                                //window.socketWriter.println(keyBindings.getString(Constants.K_BIND_UP_KEY));
+                                //getSSHCommandValue().writeVal(keyBindings.getString(Constants.K_BIND_UP_KEY));
 
                             }
                             if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -1416,5 +1433,32 @@ public class AppWindow {
 
     public void resetErrorLabel () {
         errorLabel.setText("");
+    }
+
+    /**
+     * Gets the piSocket.
+     * @return the piSocket
+     */
+    public Socket getPiSocket () {
+        return piSocket;
+    }
+
+    /**
+     * Sets piSocket to a given value.
+     * @param piSocket the piSocket to set
+     *
+     * @postcondition the piSocket has been changed to the newly passed in piSocket
+     */
+    public void setPiSocket (Socket piSocket) {
+        this.piSocket = piSocket;
+    }
+
+    public void closePiSocket () throws IOException {
+        if (piSocket != null && piSocket.isConnected())
+            piSocket.close();
+    }
+
+    public void setSocketWriter (PrintWriter pw) {
+        socketWriter = pw;
     }
 }
